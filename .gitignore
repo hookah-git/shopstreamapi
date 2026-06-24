@@ -1,0 +1,29 @@
+# Node
+node_modules/
+dist/
+docs/.vitepress/cache/
+docs/.vitepress/dist/
+
+# generated spec copy (rebuilt by docs sync:spec)
+docs/public/openapi.json
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+
+# PHP
+vendor/
+composer.lock
+
+# Go
+go.sum
+
+# Tooling / scratch
+.playwright-mcp/
+
+# OS
+.DS_Store
+
+.claude

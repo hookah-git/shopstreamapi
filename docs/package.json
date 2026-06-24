@@ -1,0 +1,19 @@
+{
+  "name": "shopstream-docs",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync:spec": "node scripts/sync-spec.mjs",
+    "predev": "node scripts/sync-spec.mjs",
+    "prebuild": "node scripts/sync-spec.mjs",
+    "dev": "vitepress dev",
+    "build": "vitepress build",
+    "preview": "vitepress preview"
+  },
+  "devDependencies": {
+    "vitepress": "^1.6.4",
+    "vitepress-openapi": "^0.2.0",
+    "vue": "^3.5.13"
+  }
+}
