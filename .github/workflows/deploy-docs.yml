@@ -20,8 +20,6 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      DOCS_BASE: /${{ github.event.repository.name }}/
     steps:
       - uses: actions/checkout@v4
 

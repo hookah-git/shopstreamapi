@@ -1,17 +1,12 @@
 import { defineConfig } from 'vitepress'
 
-const base = process.env.DOCS_BASE ?? '/'
-
 export default defineConfig({
-  base,
   title: 'StreamShop API',
   description: 'Документация и SDK публичного API StreamShop',
   lang: 'ru-RU',
   cleanUrls: true,
   appearance: 'force-dark',
-  head: [
-    ['link', { rel: 'icon', type: 'image/svg+xml', href: `${base}favicon.svg` }],
-  ],
+  head: [['link', { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }]],
   themeConfig: {
     logo: undefined,
     siteTitle: 'StreamShop API',
