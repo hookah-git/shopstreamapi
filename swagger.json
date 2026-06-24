@@ -1,0 +1,725 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/services": {
+      "get": {
+        "description": "Возвращает все видимые услуги с тарификацией. Доступно по любому валидному ключу. Поле cost содержит параметры тарифа (например, price за час чата).",
+        "operationId": "listServices",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PublicServiceListDto"
+                    },
+                    "ts": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "42ms"
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": ["success", "data", "ts", "id"]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "errors": {
+                      "oneOf": [
+                        {
+                          "type": "array",
+                          "items": {
+                            "type": "object"
+                          }
+                        },
+                        {
+                          "type": "object"
+                        }
+                      ]
+                    },
+                    "ts": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "42ms"
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": ["success", "errors", "ts", "id"]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Список доступных услуг",
+        "tags": ["Public API"]
+      }
+    },
+    "/balance": {
+      "get": {
+        "description": "Возвращает текущий баланс пользователя, которому принадлежит API-ключ.",
+        "operationId": "getBalance",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PublicBalanceDto"
+                    },
+                    "ts": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "42ms"
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": ["success", "data", "ts", "id"]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "errors": {
+                      "oneOf": [
+                        {
+                          "type": "array",
+                          "items": {
+                            "type": "object"
+                          }
+                        },
+                        {
+                          "type": "object"
+                        }
+                      ]
+                    },
+                    "ts": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "42ms"
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": ["success", "errors", "ts", "id"]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Баланс владельца ключа",
+        "tags": ["Public API"]
+      }
+    },
+    "/orders": {
+      "post": {
+        "description": "Оформляет заказ на живой чат для стрима. В тестовом режиме поддерживается только тип Chat. Сумма рассчитывается сервером по тарифу услуги и списывается с баланса владельца ключа; указывать сумму не нужно. Время старта startAt трактуется как UTC.",
+        "operationId": "createChatOrder",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicCreateChatOrderDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PublicOrderDto"
+                    },
+                    "ts": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "42ms"
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": ["success", "data", "ts", "id"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "errors": {
+                      "oneOf": [
+                        {
+                          "type": "array",
+                          "items": {
+                            "type": "object"
+                          }
+                        },
+                        {
+                          "type": "object"
+                        }
+                      ]
+                    },
+                    "ts": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "42ms"
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": ["success", "errors", "ts", "id"]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "errors": {
+                      "oneOf": [
+                        {
+                          "type": "array",
+                          "items": {
+                            "type": "object"
+                          }
+                        },
+                        {
+                          "type": "object"
+                        }
+                      ]
+                    },
+                    "ts": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "42ms"
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": ["success", "errors", "ts", "id"]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "errors": {
+                      "oneOf": [
+                        {
+                          "type": "array",
+                          "items": {
+                            "type": "object"
+                          }
+                        },
+                        {
+                          "type": "object"
+                        }
+                      ]
+                    },
+                    "ts": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "42ms"
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": ["success", "errors", "ts", "id"]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Создать заказ «Живой чат»",
+        "tags": ["Public API"]
+      }
+    },
+    "/orders/{id}": {
+      "get": {
+        "description": "Возвращает заказ, оформленный владельцем ключа. Чужой или несуществующий заказ → 404.",
+        "operationId": "getOrder",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PublicOrderDto"
+                    },
+                    "ts": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "42ms"
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": ["success", "data", "ts", "id"]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "errors": {
+                      "oneOf": [
+                        {
+                          "type": "array",
+                          "items": {
+                            "type": "object"
+                          }
+                        },
+                        {
+                          "type": "object"
+                        }
+                      ]
+                    },
+                    "ts": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "42ms"
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": ["success", "errors", "ts", "id"]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "errors": {
+                      "oneOf": [
+                        {
+                          "type": "array",
+                          "items": {
+                            "type": "object"
+                          }
+                        },
+                        {
+                          "type": "object"
+                        }
+                      ]
+                    },
+                    "ts": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "42ms"
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": ["success", "errors", "ts", "id"]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Получить свой заказ по id",
+        "tags": ["Public API"]
+      }
+    }
+  },
+  "info": {
+    "title": "ShopStream Public API",
+    "description": "Публичный API ShopStream. Аутентификация по заголовку x-api-key. Ключ выпускает администратор. Все ответы обёрнуты в конверт { success, data, ts, id }.",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "apiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key"
+      }
+    },
+    "schemas": {
+      "PublicServiceListDto": {
+        "type": "object",
+        "properties": {
+          "services": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991,
+                  "description": "Идентификатор услуги",
+                  "example": 12
+                },
+                "platform": {
+                  "type": "string",
+                  "enum": [
+                    "Twitch",
+                    "Kick",
+                    "Youtube",
+                    "Wtv",
+                    "Vkplay",
+                    "Telegram"
+                  ],
+                  "description": "Площадка",
+                  "example": "Twitch"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": ["Follow", "Chat", "Viewer", "Comment"],
+                  "description": "Тип услуги",
+                  "example": "Chat"
+                },
+                "cost": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "number"
+                  },
+                  "description": "Тарификация: ключи зависят от типа услуги (Chat: price за час; Viewer: price+quantity)",
+                  "example": {
+                    "price": 5,
+                    "quantity": 1000
+                  }
+                }
+              },
+              "required": ["id", "platform", "type", "cost"]
+            }
+          }
+        },
+        "required": ["services"]
+      },
+      "PublicBalanceDto": {
+        "type": "object",
+        "properties": {
+          "balance": {
+            "type": "string",
+            "description": "Текущий баланс владельца ключа (строка-Decimal, рубли)",
+            "example": "1530.50"
+          }
+        },
+        "required": ["balance"]
+      },
+      "PublicOrderDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "description": "Идентификатор заказа",
+            "example": "3f1a9c2e-4b7d-4a10-9c1e-2b6f5a8d0e11"
+          },
+          "platform": {
+            "type": "string",
+            "enum": ["Twitch", "Kick", "Youtube", "Wtv", "Vkplay", "Telegram"],
+            "example": "Twitch"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["Follow", "Chat", "Viewer", "Comment"],
+            "example": "Chat"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Searching",
+              "Accepted",
+              "InProgress",
+              "Paused",
+              "Cancelled",
+              "Completed"
+            ],
+            "description": "Текущий статус заказа",
+            "example": "Searching"
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "channelUrl": {
+                "type": "string",
+                "description": "Ссылка на канал/стрим",
+                "example": "https://twitch.tv/somechannel"
+              },
+              "startDate": {
+                "type": "string",
+                "description": "Дата/время старта, ISO 8601 (UTC)",
+                "example": "2026-07-01T18:00:00.000Z"
+              },
+              "startHour": {
+                "type": "string",
+                "description": "Час старта по Москве (HH)",
+                "example": "21"
+              },
+              "startMinute": {
+                "type": "string",
+                "description": "Минута старта по Москве (mm)",
+                "example": "00"
+              },
+              "durationHour": {
+                "type": "number",
+                "description": "Часть длительности — часы",
+                "example": 1
+              },
+              "durationMinute": {
+                "type": "number",
+                "description": "Часть длительности — минуты",
+                "example": 0
+              },
+              "totalHours": {
+                "type": "number",
+                "description": "Длительность в часах (дробное)",
+                "example": 1
+              },
+              "doneHours": {
+                "type": "number",
+                "description": "Сколько часов уже отработано",
+                "example": 0
+              },
+              "language": {
+                "type": "string",
+                "description": "Язык сообщений",
+                "example": "Русский"
+              },
+              "comment": {
+                "type": "string",
+                "description": "Комментарий к заказу",
+                "example": "Поддержка стрима"
+              }
+            },
+            "required": [
+              "channelUrl",
+              "startDate",
+              "startHour",
+              "startMinute",
+              "durationHour",
+              "durationMinute",
+              "totalHours",
+              "doneHours",
+              "language",
+              "comment"
+            ],
+            "description": "Параметры заказа (форма для типа Chat)"
+          },
+          "amount": {
+            "type": "string",
+            "description": "Списанная сумма (строка-Decimal, рубли)",
+            "example": "56.00"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+            "example": "2026-06-23T12:34:56.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+            "example": "2026-06-23T12:34:56.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "platform",
+          "type",
+          "status",
+          "params",
+          "amount",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "PublicCreateChatOrderDto": {
+        "type": "object",
+        "properties": {
+          "platform": {
+            "type": "string",
+            "enum": ["Twitch", "Kick", "Youtube", "Wtv", "Vkplay", "Telegram"],
+            "description": "Площадка стрима",
+            "example": "Twitch"
+          },
+          "channelUrl": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Ссылка на канал/стрим",
+            "example": "https://twitch.tv/somechannel"
+          },
+          "startAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+            "description": "Время старта чата, ISO 8601 (трактуется как UTC)",
+            "example": "2026-07-01T18:00:00Z"
+          },
+          "durationMinutes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1440,
+            "description": "Длительность чата в минутах (1..1440)",
+            "example": 60
+          },
+          "language": {
+            "description": "Язык сообщений (по умолчанию «Русский»)",
+            "example": "Русский",
+            "type": "string"
+          },
+          "comment": {
+            "description": "Произвольный комментарий к заказу",
+            "example": "Поддержка стрима",
+            "type": "string"
+          },
+          "promoCode": {
+            "description": "Промокод (опционально)",
+            "example": "PROMO10",
+            "type": "string"
+          }
+        },
+        "required": ["platform", "channelUrl", "startAt", "durationMinutes"]
+      }
+    }
+  }
+}
