@@ -8,7 +8,7 @@ namespace ShopStream\Models;
 final class PublicService
 {
     /**
-     * @param array<string,mixed> $cost Параметры тарифа (price, quantity и т.п.).
+     * @param array<string,mixed> $cost Тариф: price — цена за час чата со всеми скидками пользователя (₽).
      */
     public function __construct(
         public readonly int $id,

@@ -22,7 +22,6 @@ final class CreateChatOrderInput
         public readonly int $durationMinutes,
         public readonly ?string $language = null,
         public readonly ?string $comment = null,
-        public readonly ?string $promoCode = null,
     ) {
     }
 
@@ -40,9 +39,6 @@ final class CreateChatOrderInput
         }
         if ($this->comment !== null) {
             $body['comment'] = $this->comment;
-        }
-        if ($this->promoCode !== null) {
-            $body['promoCode'] = $this->promoCode;
         }
 
         return $body;

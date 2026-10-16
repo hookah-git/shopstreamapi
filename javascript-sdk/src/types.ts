@@ -25,7 +25,7 @@ export interface PublicService {
   id: number;
   platform: Platform;
   type: ServiceType;
-  /** Параметры тарифа (например, `price`, `quantity`). */
+  /** Тариф: `price` — цена за час чата со всеми скидками пользователя (₽). */
   cost: Record<string, unknown>;
 }
 
@@ -68,8 +68,6 @@ export interface CreateChatOrderInput {
   language?: string;
   /** Произвольный комментарий к заказу. */
   comment?: string;
-  /** Промокод (опционально). */
-  promoCode?: string;
 }
 
 /** Конверт успешного ответа. */
