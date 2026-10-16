@@ -51,7 +51,6 @@ class CreateChatOrderInput:
     duration_minutes: int  # 1..1440
     language: Optional[str] = None
     comment: Optional[str] = None
-    promo_code: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:
         platform = self.platform.value if isinstance(self.platform, Platform) else self.platform
@@ -65,8 +64,6 @@ class CreateChatOrderInput:
             body["language"] = self.language
         if self.comment is not None:
             body["comment"] = self.comment
-        if self.promo_code is not None:
-            body["promoCode"] = self.promo_code
         return body
 
 

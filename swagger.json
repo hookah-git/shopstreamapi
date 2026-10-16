@@ -3,7 +3,7 @@
   "paths": {
     "/services": {
       "get": {
-        "description": "Возвращает все видимые услуги с тарификацией. Доступно по любому валидному ключу. Поле cost содержит параметры тарифа (например, price за час чата).",
+        "description": "Возвращает тарифы услуги «Живой чат» по видимым площадкам. Поле cost.price — цена за час чата для владельца ключа с учётом всех его скидок.",
         "operationId": "listServices",
         "parameters": [],
         "responses": {
@@ -510,19 +510,21 @@
                 },
                 "type": {
                   "type": "string",
-                  "enum": ["Follow", "Chat", "Viewer", "Comment"],
+                  "enum": ["Follow", "Chat", "Viewer", "Comment", "View"],
                   "description": "Тип услуги",
                   "example": "Chat"
                 },
                 "cost": {
                   "type": "object",
-                  "additionalProperties": {
-                    "type": "number"
+                  "properties": {
+                    "price": {
+                      "type": "number"
+                    }
                   },
-                  "description": "Тарификация: ключи зависят от типа услуги (Chat: price за час; Viewer: price+quantity)",
+                  "required": ["price"],
+                  "description": "Тариф: price — цена за час чата с учётом всех скидок пользователя (рубли)",
                   "example": {
-                    "price": 5,
-                    "quantity": 1000
+                    "price": 56
                   }
                 }
               },
@@ -560,7 +562,7 @@
           },
           "type": {
             "type": "string",
-            "enum": ["Follow", "Chat", "Viewer", "Comment"],
+            "enum": ["Follow", "Chat", "Viewer", "Comment", "View"],
             "example": "Chat"
           },
           "status": {
@@ -710,11 +712,6 @@
           "comment": {
             "description": "Произвольный комментарий к заказу",
             "example": "Поддержка стрима",
-            "type": "string"
-          },
-          "promoCode": {
-            "description": "Промокод (опционально)",
-            "example": "PROMO10",
             "type": "string"
           }
         },

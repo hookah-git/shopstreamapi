@@ -34,7 +34,7 @@ const (
 	OrderStatusCompleted  OrderStatus = "Completed"
 )
 
-// PublicService — одна услуга из каталога.
+// PublicService — тариф услуги «Живой чат»; cost["price"] — цена за час со всеми скидками.
 type PublicService struct {
 	ID       int64                  `json:"id"`
 	Platform Platform               `json:"platform"`
@@ -75,5 +75,4 @@ type CreateChatOrderInput struct {
 	DurationMinutes int      `json:"durationMinutes"`
 	Language        *string  `json:"language,omitempty"`
 	Comment         *string  `json:"comment,omitempty"`
-	PromoCode       *string  `json:"promoCode,omitempty"`
 }
