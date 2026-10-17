@@ -75,4 +75,5 @@ type CreateChatOrderInput struct {
 	DurationMinutes int      `json:"durationMinutes"`
 	Language        *string  `json:"language,omitempty"`
 	Comment         *string  `json:"comment,omitempty"`
+	Level           *int     `json:"level,omitempty"` // 1, 2 или 3 (по умолчанию 1)
 }
