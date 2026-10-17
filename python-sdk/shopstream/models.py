@@ -51,6 +51,7 @@ class CreateChatOrderInput:
     duration_minutes: int  # 1..1440
     language: Optional[str] = None
     comment: Optional[str] = None
+    level: Optional[int] = None  # 1, 2 или 3 (по умолчанию 1)
 
     def to_dict(self) -> Dict[str, Any]:
         platform = self.platform.value if isinstance(self.platform, Platform) else self.platform
@@ -64,6 +65,8 @@ class CreateChatOrderInput:
             body["language"] = self.language
         if self.comment is not None:
             body["comment"] = self.comment
+        if self.level is not None:
+            body["level"] = self.level
         return body
 
 

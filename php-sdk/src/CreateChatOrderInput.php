@@ -22,6 +22,8 @@ final class CreateChatOrderInput
         public readonly int $durationMinutes,
         public readonly ?string $language = null,
         public readonly ?string $comment = null,
+        /** 1, 2 или 3 (по умолчанию 1). */
+        public readonly ?int $level = null,
     ) {
     }
 
@@ -39,6 +41,9 @@ final class CreateChatOrderInput
         }
         if ($this->comment !== null) {
             $body['comment'] = $this->comment;
+        }
+        if ($this->level !== null) {
+            $body['level'] = $this->level;
         }
 
         return $body;
