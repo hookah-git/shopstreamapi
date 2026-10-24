@@ -71,7 +71,7 @@ type PublicOrder struct {
 type CreateChatOrderInput struct {
 	Platform        Platform `json:"platform"`
 	ChannelURL      string   `json:"channelUrl"`
-	StartAt         string   `json:"startAt"` // ISO 8601 с Z (UTC)
+	StartAt         string   `json:"startAt"`         // ISO 8601 с Z (UTC)
 	DurationMinutes int      `json:"durationMinutes"` // 30..1435
 	Language        *string  `json:"language,omitempty"`
 	Comment         *string  `json:"comment,omitempty"`
