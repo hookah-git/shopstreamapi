@@ -48,7 +48,7 @@ class CreateChatOrderInput:
     platform: Union[Platform, str]
     channel_url: str
     start_at: str  # ISO 8601 с ``Z`` (UTC)
-    duration_minutes: int  # 1..1440
+    duration_minutes: int  # 30..1435
     language: Optional[str] = None
     comment: Optional[str] = None
     level: Optional[int] = None  # 1, 2 или 3 (по умолчанию 1)

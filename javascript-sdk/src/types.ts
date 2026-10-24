@@ -62,7 +62,7 @@ export interface CreateChatOrderInput {
   channelUrl: string;
   /** Время старта чата, ISO 8601 с `Z` (трактуется как UTC). */
   startAt: string;
-  /** Длительность чата в минутах (1..1440). */
+  /** Длительность чата в минутах (30..1435, до 23:55). */
   durationMinutes: number;
   /** Язык сообщений (по умолчанию «Русский»). */
   language?: string;

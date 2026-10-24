@@ -717,9 +717,9 @@
           },
           "durationMinutes": {
             "type": "integer",
-            "minimum": 1,
-            "maximum": 1440,
-            "description": "Длительность чата в минутах (1..1440)",
+            "minimum": 30,
+            "maximum": 1435,
+            "description": "Длительность чата в минутах (30..1435, то есть до 23:55)",
             "example": 60
           },
           "level": {

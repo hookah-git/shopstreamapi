@@ -18,7 +18,7 @@ final class CreateChatOrderInput
         public readonly string $channelUrl,
         /** ISO 8601 с Z (UTC). */
         public readonly string $startAt,
-        /** 1..1440. */
+        /** 30..1435. */
         public readonly int $durationMinutes,
         public readonly ?string $language = null,
         public readonly ?string $comment = null,

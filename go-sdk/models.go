@@ -72,7 +72,7 @@ type CreateChatOrderInput struct {
 	Platform        Platform `json:"platform"`
 	ChannelURL      string   `json:"channelUrl"`
 	StartAt         string   `json:"startAt"` // ISO 8601 с Z (UTC)
-	DurationMinutes int      `json:"durationMinutes"`
+	DurationMinutes int      `json:"durationMinutes"` // 30..1435
 	Language        *string  `json:"language,omitempty"`
 	Comment         *string  `json:"comment,omitempty"`
 	Level           *int     `json:"level,omitempty"` // 1, 2 или 3 (по умолчанию 1)
