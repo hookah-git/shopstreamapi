@@ -3,6 +3,7 @@ import type {
   ApiEnvelope,
   ApiErrorEnvelope,
   CreateChatOrderInput,
+  CreateCommentOrderInput,
   PublicBalance,
   PublicOrder,
   PublicServiceList,
@@ -74,6 +75,14 @@ export class ShopStreamClient {
    */
   createChatOrder(input: CreateChatOrderInput): Promise<PublicOrder> {
     return this.request<PublicOrder>('POST', '/orders', input);
+  }
+
+  /**
+   * `POST /orders/comments` — создать заказ «Живые комментарии» (Telegram): пост уже вышел
+   * (`postUrl`) или запланирован (`channelUrl` + `startAt`). Сумма считается сервером.
+   */
+  createCommentOrder(input: CreateCommentOrderInput): Promise<PublicOrder> {
+    return this.request<PublicOrder>('POST', '/orders/comments', input);
   }
 
   /** `GET /orders/{id}` — получить свой заказ по id. */

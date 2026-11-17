@@ -49,6 +49,7 @@ fetched, err := client.GetOrder(ctx, order.ID)
 | `ListServices(ctx)` | `GET /services` | `*PublicServiceList` |
 | `GetBalance(ctx)` | `GET /balance` | `*PublicBalance` |
 | `CreateChatOrder(ctx, in)` | `POST /orders` | `*PublicOrder` |
+| `CreateCommentOrder(ctx, in)` | `POST /orders/comments` | `*PublicOrder` |
 | `GetOrder(ctx, id)` | `GET /orders/{id}` | `*PublicOrder` |
 
 Каждый метод возвращает уже распакованное поле `data` из конверта.

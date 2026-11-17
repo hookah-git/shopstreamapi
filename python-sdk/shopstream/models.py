@@ -71,16 +71,46 @@ class CreateChatOrderInput:
 
 
 @dataclass
+class CreateCommentOrderInput:
+    """Тело ``POST /orders/comments`` — заказ «Живые комментарии» (Telegram).
+
+    Два вида: пост уже вышел (``post_url``) либо запланирован (``channel_url`` +
+    ``start_at``, минимум за 30 минут до выхода). Сумму считает сервер.
+    """
+
+    post_url: Optional[str] = None  # https://t.me/<канал>/<номер>
+    channel_url: Optional[str] = None
+    start_at: Optional[str] = None  # ISO 8601 с зоной: ``Z`` или смещение
+    comment: Optional[str] = None  # до 1000 символов
+
+    def to_dict(self) -> Dict[str, Any]:
+        body: Dict[str, Any] = {}
+        if self.post_url is not None:
+            body["postUrl"] = self.post_url
+        if self.channel_url is not None:
+            body["channelUrl"] = self.channel_url
+        if self.start_at is not None:
+            body["startAt"] = self.start_at
+        if self.comment is not None:
+            body["comment"] = self.comment
+        return body
+
+
+@dataclass
 class PublicService:
     """Одна услуга из каталога."""
 
     id: int
     platform: str
     type: str
-    #: ``{"price": число}`` — цена часа чата на русском со всеми скидками (₽); для другого языка ×2.
+    #: ``{"price": число}`` — цена со всеми скидками (₽): у ``Chat`` цена часа чата на русском
+    #: (для другого языка ×2), у ``Comment`` — цена одного поста.
     cost: Dict[str, Any]
-    #: Доплаты к итогу заказа за уровни: ``[{"level": 1, "surcharge": 0}, ...]``.
+    #: Только у ``Chat``: доплаты к итогу заказа за уровни: ``[{"level": 1, "surcharge": 0}, ...]``.
     levels: List[Dict[str, Any]] = field(default_factory=list)
+    #: Только у ``Comment``: цены подписок (только для вывода, оформить через API нельзя):
+    #: ``[{"id": 1, "quantity": 5, "durationHours": 720, "price": 900}, ...]``.
+    subscriptions: List[Dict[str, Any]] = field(default_factory=list)
 
     @classmethod
     def from_dict(cls, d: Dict[str, Any]) -> "PublicService":
@@ -90,6 +120,7 @@ class PublicService:
             type=d["type"],
             cost=d.get("cost", {}),
             levels=d.get("levels", []),
+            subscriptions=d.get("subscriptions", []),
         )
 
 

@@ -24,7 +24,7 @@ function responsesOf(operationId) {
 
 # StreamShop Public API {#top}
 
-Публичный API для внешних клиентов: каталог услуг, баланс и заказы «Живой чат».
+Публичный API для внешних клиентов: каталог услуг, баланс и заказы «Живой чат» и «Живые комментарии» (Telegram).
 Аутентификация по заголовку `x-api-key`, успешные ответы — в конверте `{ success, data }`.
 Об изменении статуса заказа сообщает [callback (webhook)](#webhooks): адрес для ключа настраивается
 в панели (`panel/settings`).
@@ -135,9 +135,9 @@ x-api-key: <ключ>
 
 ## Перечисления {#enums}
 
-- **Platform:** `Twitch` · `Kick` · `Youtube` · `Wtv` · `Vkplay` — для `GET /services` и `POST /orders`;
-  в заказах (`GET /orders/{id}`) может встретиться и `Telegram`
-- **ServiceType:** `Follow` · `Chat` · `Viewer` · `Comment` · `View` — `GET /services` и `POST /orders` работают только с `Chat`
+- **Platform:** `Twitch` · `Kick` · `Youtube` · `Wtv` · `Vkplay` · `Telegram` — `Telegram` только у услуги `Comment`
+- **ServiceType:** `Follow` · `Chat` · `Viewer` · `Comment` · `View` — в `GET /services` и при создании заказов доступны
+  `Chat` (`POST /orders`) и `Comment` (`POST /orders/comments`)
 - **OrderStatus:** `Searching` · `Accepted` · `InProgress` · `Paused` · `Cancelled` · `Completed`
 
 <div class="op-card op-grid">
@@ -235,6 +235,33 @@ x-api-key: <ключ>
 <div class="op-card op-grid">
 <div class="op-col">
 
+## Создать заказ «Живые комментарии» {#op-createCommentOrder}
+
+Заказ комментариев под постом в Telegram. Два вида: **пост уже вышел** (`postUrl`) — работа начинается
+сразу; **пост запланирован** (`channelUrl` + `startAt`) — оформлять нужно минимум за 30 минут до выхода.
+Цена поста и цены подписок — в `GET /services` (услуга `Telegram` / `Comment`). Оформить подписку через
+API нельзя: цены подписок отдаются только для вывода. Бесплатный тест и промокоды недоступны.
+Статусы заказа приходят на [callback (webhook)](#webhooks), адрес которого настраивается для ключа в `panel/settings`.
+
+<OAOperation operationId="createCommentOrder" />
+
+</div>
+<div class="op-col">
+<ClientOnly>
+<OAOperationContext operationId="createCommentOrder" :openapi="openapi">
+
+<OAResponses operationId="createCommentOrder" :responses="responsesOf('createCommentOrder')" />
+
+<OACodeSamples operationId="createCommentOrder" />
+
+</OAOperationContext>
+</ClientOnly>
+</div>
+</div>
+
+<div class="op-card op-grid">
+<div class="op-col">
+
 ## Получить заказ по id {#op-getOrder}
 
 <OAOperation operationId="getOrder" />
@@ -279,10 +306,15 @@ const order = await client.createChatOrder({
 });
 
 const fetched = await client.getOrder(order.id);
+
+// Живые комментарии (Telegram): пост уже вышел
+const commentOrder = await client.createCommentOrder({
+  postUrl: 'https://t.me/channel/123',
+});
 ```
 
 ```python [Python]
-from shopstream import ShopStreamClient, CreateChatOrderInput, Platform
+from shopstream import ShopStreamClient, CreateChatOrderInput, CreateCommentOrderInput, Platform
 
 client = ShopStreamClient(
     api_key="sk_live_...",
@@ -302,11 +334,17 @@ order = client.create_chat_order(
 )
 
 fetched = client.get_order(order.id)
+
+# Живые комментарии (Telegram): пост уже вышел
+comment_order = client.create_comment_order(
+    CreateCommentOrderInput(post_url="https://t.me/channel/123")
+)
 ```
 
 ```php [PHP]
 use ShopStream\Client;
 use ShopStream\CreateChatOrderInput;
+use ShopStream\CreateCommentOrderInput;
 use ShopStream\Enums\Platform;
 
 $client = new Client('sk_live_...', 'https://shop-stream.ru/api/v1');
@@ -322,6 +360,11 @@ $order = $client->createChatOrder(new CreateChatOrderInput(
 ));
 
 $fetched = $client->getOrder($order->id);
+
+// Живые комментарии (Telegram): пост уже вышел
+$commentOrder = $client->createCommentOrder(new CreateCommentOrderInput(
+    postUrl: 'https://t.me/channel/123',
+));
 ```
 
 ```go [Go]
@@ -344,6 +387,10 @@ order, _ := client.CreateChatOrder(ctx, shopstream.CreateChatOrderInput{
 })
 
 fetched, _ := client.GetOrder(ctx, order.ID)
+
+// Живые комментарии (Telegram): пост уже вышел
+postURL := "https://t.me/channel/123"
+commentOrder, _ := client.CreateCommentOrder(ctx, shopstream.CreateCommentOrderInput{PostURL: &postURL})
 ```
 
 :::
@@ -353,6 +400,7 @@ fetched, _ := client.GetOrder(ctx, order.ID)
 | `listServices()` | `GET /services` |
 | `getBalance()` | `GET /balance` |
 | `createChatOrder(...)` | `POST /orders` |
+| `createCommentOrder(...)` | `POST /orders/comments` |
 | `getOrder(id)` | `GET /orders/{id}` |
 
 Полные README — в `javascript-sdk/`, `python-sdk/`, `php-sdk/`, `go-sdk/`.

@@ -83,6 +83,16 @@ func (c *Client) GetBalance(ctx context.Context) (*PublicBalance, error) {
 	return &out, nil
 }
 
+// CreateCommentOrder — POST /orders/comments: заказ «Живые комментарии» (Telegram), пост уже
+// вышел (PostURL) или запланирован (ChannelURL + StartAt). Сумму считает сервер.
+func (c *Client) CreateCommentOrder(ctx context.Context, in CreateCommentOrderInput) (*PublicOrder, error) {
+	var out PublicOrder
+	if err := c.do(ctx, http.MethodPost, "/orders/comments", in, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 // CreateChatOrder — POST /orders. Сумму считает сервер.
 func (c *Client) CreateChatOrder(ctx context.Context, in CreateChatOrderInput) (*PublicOrder, error) {
 	var out PublicOrder

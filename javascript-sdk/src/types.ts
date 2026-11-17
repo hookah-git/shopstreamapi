@@ -7,7 +7,7 @@ export type Platform =
   | 'Vkplay'
   | 'Telegram';
 
-/** Типы услуг. `GET /services` и `POST /orders` работают только с `Chat`. */
+/** Типы услуг. Заказы через API: `Chat` (`POST /orders`) и `Comment` (`POST /orders/comments`). */
 export type ServiceType = 'Follow' | 'Chat' | 'Viewer' | 'Comment' | 'View';
 
 /** Статусы заказа. */
@@ -25,10 +25,27 @@ export interface PublicService {
   id: number;
   platform: Platform;
   type: ServiceType;
-  /** Тариф: `price` — цена часа чата на русском со всеми скидками пользователя (₽); для другого языка ×2. */
+  /**
+   * Тариф: `price` — цена со всеми скидками пользователя (₽). У `Chat` — цена часа чата на русском
+   * (для другого языка ×2), у `Comment` — цена одного поста.
+   */
   cost: { price: number };
-  /** Доплата к итогу заказа за уровень (1, 2, 3), добавляется после скидок. */
-  levels: ServiceLevel[];
+  /** Только у `Chat`: доплата к итогу заказа за уровень (1, 2, 3), добавляется после скидок. */
+  levels?: ServiceLevel[];
+  /** Только у `Comment`: цены подписок (только для вывода, оформить подписку через API нельзя). */
+  subscriptions?: CommentSubscription[];
+}
+
+/** Подписка на комментарии из каталога. */
+export interface CommentSubscription {
+  /** Идентификатор тарифа. */
+  id: number;
+  /** Постов в сутки. */
+  quantity: number;
+  /** Срок подписки, часы. */
+  durationHours: number;
+  /** Цена подписки со всеми скидками владельца ключа (₽). */
+  price: number;
 }
 
 /** Доплата за уровень заказа чата. */
@@ -55,14 +72,26 @@ export interface PublicOrder {
   platform: Platform;
   type: ServiceType;
   status: OrderStatus;
-  /** Для типа `Chat` — {@link ChatOrderParams}, для остальных — как сохранены в заказе. */
-  params: ChatOrderParams | Record<string, unknown>;
+  /** Для `Chat` — {@link ChatOrderParams}, для `Comment` — {@link CommentOrderParams}, для остальных — как сохранены в заказе. */
+  params: ChatOrderParams | CommentOrderParams | Record<string, unknown>;
   /** Списанная сумма (строка-Decimal). */
   amount: string;
   /** ISO 8601, UTC. */
   createdAt: string;
   /** ISO 8601, UTC. */
   updatedAt: string;
+}
+
+/** Параметры заказа «Живые комментарии» в ответе: та же форма, что принимает `POST /orders/comments`. */
+export interface CommentOrderParams {
+  alreadyPublished: boolean;
+  /** Если пост уже вышел. */
+  postUrl?: string;
+  /** Если пост запланирован. */
+  channelUrl?: string;
+  /** ISO 8601 (UTC) для запланированного поста; `null`, если не удалось восстановить. */
+  startAt?: string | null;
+  comment: string;
 }
 
 /** Параметры заказа «Живой чат» в ответе: та же форма, что принимает `POST /orders`. */
@@ -92,6 +121,28 @@ export interface CreateChatOrderInput {
   /** Уровень заказа: 1 — чат, 2 — чат + 10 фоллоу-ботов, 3 — + 3 клипа (по умолчанию 1). */
   level?: 1 | 2 | 3;
 }
+
+/**
+ * Тело `POST /orders/comments` — заказ «Живые комментарии» (Telegram). Два вида: пост уже вышел
+ * (`postUrl`) либо запланирован (`channelUrl` + `startAt`, минимум за 30 минут до выхода).
+ */
+export type CreateCommentOrderInput =
+  | {
+      /** Ссылка на вышедший пост: `https://t.me/<канал>/<номер>`. */
+      postUrl: string;
+      /** Произвольный комментарий к заказу (до 1000 символов). */
+      comment?: string;
+      channelUrl?: never;
+      startAt?: never;
+    }
+  | {
+      /** Ссылка на канал, в котором выйдет запланированный пост. */
+      channelUrl: string;
+      /** Когда выйдет пост, ISO 8601 с зоной: `Z` или смещение (`+03:00`). */
+      startAt: string;
+      comment?: string;
+      postUrl?: never;
+    };
 
 /** Конверт успешного ответа. */
 export interface ApiEnvelope<T> {

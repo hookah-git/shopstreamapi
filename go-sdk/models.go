@@ -34,20 +34,31 @@ const (
 	OrderStatusCompleted  OrderStatus = "Completed"
 )
 
+// CommentSubscription — цена подписки на комментарии из каталога (только для вывода:
+// оформить подписку через API нельзя).
+type CommentSubscription struct {
+	ID            int     `json:"id"`
+	Quantity      int     `json:"quantity"`      // постов в сутки
+	DurationHours int     `json:"durationHours"` // срок, часы
+	Price         float64 `json:"price"`         // со всеми скидками владельца ключа, ₽
+}
+
 // ServiceLevel — доплата к итогу заказа за уровень (1, 2, 3); у уровня 1 доплаты нет.
 type ServiceLevel struct {
 	Level     int     `json:"level"`
 	Surcharge float64 `json:"surcharge"`
 }
 
-// PublicService — тариф услуги «Живой чат»; cost["price"] — цена часа чата на русском
-// со всеми скидками (для другого языка ×2).
+// PublicService — услуга каталога. cost["price"] — цена со всеми скидками: у Chat цена часа
+// чата на русском (для другого языка ×2), у Comment — цена одного поста.
 type PublicService struct {
 	ID       int64                  `json:"id"`
 	Platform Platform               `json:"platform"`
 	Type     ServiceType            `json:"type"`
 	Cost     map[string]interface{} `json:"cost"`
-	Levels   []ServiceLevel         `json:"levels"`
+	Levels   []ServiceLevel         `json:"levels"` // только у Chat
+	// Subscriptions — только у Comment: цены подписок (только для вывода).
+	Subscriptions []CommentSubscription `json:"subscriptions"`
 }
 
 // PublicServiceList — ответ GET /services.
@@ -70,6 +81,17 @@ type PublicOrder struct {
 	Amount    string                 `json:"amount"`
 	CreatedAt string                 `json:"createdAt"`
 	UpdatedAt string                 `json:"updatedAt"`
+}
+
+// CreateCommentOrderInput — тело POST /orders/comments (заказ «Живые комментарии», Telegram).
+//
+// Два вида: пост уже вышел (PostURL) либо запланирован (ChannelURL + StartAt, минимум за
+// 30 минут до выхода). Сумму считает сервер. Указатели — чтобы не слать пустые значения.
+type CreateCommentOrderInput struct {
+	PostURL    *string `json:"postUrl,omitempty"`    // https://t.me/<канал>/<номер>
+	ChannelURL *string `json:"channelUrl,omitempty"` // канал запланированного поста
+	StartAt    *string `json:"startAt,omitempty"`    // ISO 8601 с зоной: Z или смещение
+	Comment    *string `json:"comment,omitempty"`    // до 1000 символов
 }
 
 // CreateChatOrderInput — тело POST /orders.

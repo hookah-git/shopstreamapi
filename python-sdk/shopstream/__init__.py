@@ -4,6 +4,7 @@ from .client import ShopStreamClient
 from .errors import ShopStreamApiError
 from .models import (
     CreateChatOrderInput,
+    CreateCommentOrderInput,
     OrderStatus,
     Platform,
     PublicBalance,
@@ -17,6 +18,7 @@ __all__ = [
     "ShopStreamClient",
     "ShopStreamApiError",
     "CreateChatOrderInput",
+    "CreateCommentOrderInput",
     "OrderStatus",
     "Platform",
     "PublicBalance",
