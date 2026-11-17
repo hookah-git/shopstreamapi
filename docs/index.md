@@ -26,6 +26,8 @@ function responsesOf(operationId) {
 
 Публичный API для внешних клиентов: каталог услуг, баланс и заказы «Живой чат».
 Аутентификация по заголовку `x-api-key`, успешные ответы — в конверте `{ success, data }`.
+Об изменении статуса заказа сообщает [callback (webhook)](#webhooks): адрес для ключа настраивается
+в панели (`panel/settings`).
 
 <div class="api-callout">
 
@@ -184,6 +186,35 @@ x-api-key: <ключ>
 <div class="op-col">
 
 ## Создать заказ «Живой чат» {#op-createChatOrder}
+
+### Поле `channelUrl` {#channel-url}
+
+Передавайте **название канала** или **ссылку на канал** выбранной площадки — не ссылку на видео
+и не на трансляцию. Сервер приводит значение к каноничной ссылке канала (берёт ник из пути ссылки,
+хвост вроде `/live` или `/videos/…` отбрасывает), именно она сохраняется в заказе и возвращается в
+`params.channelUrl`.
+
+| Площадка | Принимается | Сохраняется как |
+|----------|-------------|-----------------|
+| Twitch | `somechannel`, `twitch.tv/somechannel` | `https://twitch.tv/somechannel` |
+| Kick | `somechannel`, `kick.com/somechannel` | `https://kick.com/somechannel` |
+| YouTube | `MrBeast`, `@MrBeast`, `https://www.youtube.com/@MrBeast`, `https://www.youtube.com/@MrBeast/live` | `https://youtube.com/@MrBeast` |
+| Wtv | `somechannel`, `https://w.tv/somechannel` | `https://w.tv/somechannel` |
+| Vkplay | `somechannel`, `https://live.vkvideo.ru/somechannel`, `https://vkplay.live/somechannel` | `https://live.vkvideo.ru/somechannel` |
+
+Ссылка другой площадки или ник неподходящей длины → **400**. **Ссылки на видео и трансляции не
+поддерживаются**: канал по ним не определяется, и заказ уйдёт на неверный канал. Для YouTube это,
+например:
+
+| Передали | Что получится |
+|----------|---------------|
+| `https://www.youtube.com/watch?v=dQw4w9WgXcQ` | канал `@watch` |
+| `https://youtu.be/dQw4w9WgXcQ` | канал `@dQw4w9WgXcQ` |
+| `https://www.youtube.com/live/dQw4w9WgXcQ` | канал `@live` |
+| `https://www.youtube.com/channel/UC…`, `https://www.youtube.com/user/…` | каналы `@channel`, `@user` |
+| `https://www.youtube.com/c/MrBeast` | 400, ник не распознан |
+
+Для YouTube всегда передавайте handle канала: `@MrBeast` или `https://www.youtube.com/@MrBeast`.
 
 <OAOperation operationId="createChatOrder" />
 

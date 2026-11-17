@@ -79,7 +79,7 @@ export interface ChatOrderParams {
 /** Тело `POST /orders`. */
 export interface CreateChatOrderInput {
   platform: Platform;
-  /** Ссылка на канал/стрим (до 300 символов). */
+  /** Название канала или ссылка на канал (не на видео/трансляцию), до 300 символов; сервер приводит к ссылке канала. */
   channelUrl: string;
   /** Время старта чата, ISO 8601 с зоной: `Z` или смещение (`+03:00`). */
   startAt: string;
