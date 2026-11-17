@@ -46,7 +46,7 @@ class CreateChatOrderInput:
     """
 
     platform: Union[Platform, str]
-    channel_url: str  # название канала или ссылка на канал (не на видео/трансляцию)
+    channel_url: str  # название канала или ссылка на канал (у YouTube — и на видео/трансляцию)
     start_at: str  # ISO 8601 с зоной: ``Z`` или смещение (``+03:00``)
     duration_minutes: int  # 1..1440
     language: Optional[str] = None

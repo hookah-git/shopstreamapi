@@ -734,7 +734,7 @@
           "channelUrl": {
             "type": "string",
             "minLength": 1,
-            "description": "Название канала или ссылка на канал выбранной площадки (не на видео и не на трансляцию). Сервер приводит значение к каноничной ссылке канала, например @MrBeast → https://youtube.com/@MrBeast",
+            "description": "Название канала или ссылка на канал выбранной площадки. Для YouTube допускается и ссылка на видео или трансляцию (watch, live, shorts, youtu.be): канал определяется по автору видео. Сервер приводит значение к каноничной ссылке канала, например @MrBeast → https://youtube.com/@MrBeast",
             "example": "https://twitch.tv/somechannel",
             "maxLength": 300
           },
