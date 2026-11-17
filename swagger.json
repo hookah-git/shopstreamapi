@@ -22,6 +22,56 @@
                     }
                   },
                   "required": ["success", "data"]
+                },
+                "examples": {
+                  "chatAndComments": {
+                    "summary": "Чат и комментарии",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "services": [
+                          {
+                            "id": 12,
+                            "platform": "Twitch",
+                            "type": "Chat",
+                            "cost": {
+                              "price": 56
+                            },
+                            "levels": [
+                              {
+                                "level": 1,
+                                "surcharge": 0
+                              },
+                              {
+                                "level": 2,
+                                "surcharge": 50
+                              },
+                              {
+                                "level": 3,
+                                "surcharge": 120
+                              }
+                            ]
+                          },
+                          {
+                            "id": 7,
+                            "platform": "Telegram",
+                            "type": "Comment",
+                            "cost": {
+                              "price": 30
+                            },
+                            "subscriptions": [
+                              {
+                                "id": 3,
+                                "quantity": 5,
+                                "durationHours": 720,
+                                "price": 900
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -178,7 +228,7 @@
                       "example": true
                     },
                     "data": {
-                      "$ref": "#/components/schemas/PublicOrderDto"
+                      "$ref": "#/components/schemas/PublicChatOrderDto"
                     }
                   },
                   "required": ["success", "data"]
@@ -266,6 +316,23 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/PublicCreateCommentOrderDto"
+              },
+              "examples": {
+                "postPublished": {
+                  "summary": "Пост уже вышел",
+                  "value": {
+                    "postUrl": "https://t.me/channel/123",
+                    "comment": "Поддержка поста"
+                  }
+                },
+                "postScheduled": {
+                  "summary": "Пост запланирован",
+                  "value": {
+                    "channelUrl": "https://t.me/channel",
+                    "startAt": "2026-07-01T18:00:00Z",
+                    "comment": "Поддержка поста"
+                  }
+                }
               }
             }
           }
@@ -282,10 +349,53 @@
                       "example": true
                     },
                     "data": {
-                      "$ref": "#/components/schemas/PublicOrderDto"
+                      "$ref": "#/components/schemas/PublicCommentOrderDto"
                     }
                   },
                   "required": ["success", "data"]
+                },
+                "examples": {
+                  "postPublished": {
+                    "summary": "Пост уже вышел",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "id": "6b1c7d2e-8a3f-4c55-b0a1-9d4e2f7a1c30",
+                        "platform": "Telegram",
+                        "type": "Comment",
+                        "status": "InProgress",
+                        "params": {
+                          "alreadyPublished": true,
+                          "postUrl": "https://t.me/channel/123",
+                          "comment": "Поддержка поста"
+                        },
+                        "amount": "30.00",
+                        "createdAt": "2026-06-23T12:34:56.000Z",
+                        "updatedAt": "2026-06-23T12:34:56.000Z"
+                      }
+                    }
+                  },
+                  "postScheduled": {
+                    "summary": "Пост запланирован",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "id": "9e2a4c61-3b7d-4f08-a6c2-1d5b8e0f7a42",
+                        "platform": "Telegram",
+                        "type": "Comment",
+                        "status": "InProgress",
+                        "params": {
+                          "alreadyPublished": false,
+                          "channelUrl": "https://t.me/channel",
+                          "startAt": "2026-07-01T18:00:00.000Z",
+                          "comment": "Поддержка поста"
+                        },
+                        "amount": "30.00",
+                        "createdAt": "2026-06-23T12:34:56.000Z",
+                        "updatedAt": "2026-06-23T12:34:56.000Z"
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -356,14 +466,14 @@
             "apiKey": []
           }
         ],
-        "summary": "Создать заказ «Живые комментарии» (Telegram)",
+        "summary": "Создать заказ «Комментарии» (Telegram)",
         "tags": ["Public API"],
         "description": "Заказ комментариев под постом в Telegram. Сумму считает сервер по цене поста и скидкам владельца ключа. Об изменении статуса заказа сообщает callback (webhook): адрес настраивается для ключа в panel/settings, подробности в разделе «Callback (webhook)»."
       }
     },
     "/orders/{id}": {
       "get": {
-        "description": "Свой заказ по id; чужой и несуществующий неразличимы (404). Статусы удобнее получать не опросом, а через callback: адрес настраивается для ключа в panel/settings (раздел «Callback (webhook)»).",
+        "description": "Свой заказ по id; чужой и несуществующий неразличимы (404). Форма ответа зависит от type заказа: Chat, Comment или другой тип, оформленный на сайте. Статусы удобнее получать не опросом, а через callback: адрес настраивается для ключа в panel/settings (раздел «Callback (webhook)»).",
         "operationId": "getOrder",
         "parameters": [
           {
@@ -387,10 +497,96 @@
                       "example": true
                     },
                     "data": {
-                      "$ref": "#/components/schemas/PublicOrderDto"
+                      "oneOf": [
+                        {
+                          "$ref": "#/components/schemas/PublicChatOrderDto"
+                        },
+                        {
+                          "$ref": "#/components/schemas/PublicCommentOrderDto"
+                        },
+                        {
+                          "$ref": "#/components/schemas/PublicOtherOrderDto"
+                        }
+                      ],
+                      "discriminator": {
+                        "propertyName": "type",
+                        "mapping": {
+                          "Chat": "#/components/schemas/PublicChatOrderDto",
+                          "Comment": "#/components/schemas/PublicCommentOrderDto",
+                          "Follow": "#/components/schemas/PublicOtherOrderDto",
+                          "Viewer": "#/components/schemas/PublicOtherOrderDto",
+                          "View": "#/components/schemas/PublicOtherOrderDto"
+                        }
+                      }
                     }
                   },
                   "required": ["success", "data"]
+                },
+                "examples": {
+                  "chat": {
+                    "summary": "Заказ «Живой чат»",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "id": "3f1a9c2e-4b7d-4a10-9c1e-2b6f5a8d0e11",
+                        "platform": "Twitch",
+                        "type": "Chat",
+                        "status": "Searching",
+                        "params": {
+                          "channelUrl": "https://twitch.tv/somechannel",
+                          "startAt": "2026-07-01T18:00:00.000Z",
+                          "durationMinutes": 60,
+                          "language": "Русский",
+                          "comment": "Поддержка стрима",
+                          "level": 1
+                        },
+                        "amount": "56.00",
+                        "createdAt": "2026-06-23T12:34:56.000Z",
+                        "updatedAt": "2026-06-23T12:34:56.000Z"
+                      }
+                    }
+                  },
+                  "commentPublished": {
+                    "summary": "Заказ «Комментарии», пост уже вышел",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "id": "6b1c7d2e-8a3f-4c55-b0a1-9d4e2f7a1c30",
+                        "platform": "Telegram",
+                        "type": "Comment",
+                        "status": "InProgress",
+                        "params": {
+                          "alreadyPublished": true,
+                          "postUrl": "https://t.me/channel/123",
+                          "comment": "Поддержка поста"
+                        },
+                        "amount": "30.00",
+                        "createdAt": "2026-06-23T12:34:56.000Z",
+                        "updatedAt": "2026-06-23T12:34:56.000Z"
+                      }
+                    }
+                  },
+                  "commentScheduled": {
+                    "summary": "Заказ «Комментарии», пост запланирован",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "id": "9e2a4c61-3b7d-4f08-a6c2-1d5b8e0f7a42",
+                        "platform": "Telegram",
+                        "type": "Comment",
+                        "status": "InProgress",
+                        "params": {
+                          "alreadyPublished": false,
+                          "channelUrl": "https://t.me/channel",
+                          "startAt": "2026-07-01T18:00:00.000Z",
+                          "comment": "Поддержка поста"
+                        },
+                        "amount": "30.00",
+                        "createdAt": "2026-06-23T12:34:56.000Z",
+                        "updatedAt": "2026-06-23T12:34:56.000Z"
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -468,7 +664,7 @@
   },
   "info": {
     "title": "ShopStream Public API",
-    "description": "Публичный API ShopStream: каталог услуг, баланс, заказы «Живой чат» и «Живые комментарии» (Telegram). Аутентификация по заголовку x-api-key. Ключ выпускает администратор. Успешные ответы обёрнуты в конверт { success, data }. Ошибки приходят в формате { error, url, statusCode, statusMessage, message, data? }. Версия API — в пути: базовый URL https://shop-stream.ru/api/v1.",
+    "description": "Публичный API ShopStream: каталог услуг, баланс, заказы «Живой чат» и «Комментарии» (Telegram). Аутентификация по заголовку x-api-key. Ключ выпускает администратор. Успешные ответы обёрнуты в конверт { success, data }. Ошибки приходят в формате { error, url, statusCode, statusMessage, message, data? }. Версия API — в пути: базовый URL https://shop-stream.ru/api/v1.",
     "version": "1.0",
     "contact": {}
   },
@@ -493,100 +689,23 @@
         "properties": {
           "services": {
             "type": "array",
+            "description": "Услуги, доступные владельцу ключа. Форма элемента зависит от type: Chat — с levels, Comment — с subscriptions",
             "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "integer",
-                  "minimum": -9007199254740991,
-                  "maximum": 9007199254740991,
-                  "description": "Идентификатор услуги",
-                  "example": 12
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/PublicChatServiceDto"
                 },
-                "platform": {
-                  "type": "string",
-                  "enum": [
-                    "Twitch",
-                    "Kick",
-                    "Youtube",
-                    "Wtv",
-                    "Vkplay",
-                    "Telegram"
-                  ],
-                  "description": "Площадка",
-                  "example": "Twitch"
-                },
-                "type": {
-                  "type": "string",
-                  "enum": ["Chat", "Comment"],
-                  "description": "Тип услуги: Chat — «Живой чат», Comment — «Живые комментарии» (только Telegram)",
-                  "example": "Chat"
-                },
-                "cost": {
-                  "type": "object",
-                  "properties": {
-                    "price": {
-                      "type": "number"
-                    }
-                  },
-                  "required": ["price"],
-                  "description": "Тариф: price — цена со всеми скидками владельца ключа (рубли). Chat: цена часа чата на русском (для другого языка ×2). Comment: цена одного поста",
-                  "example": {
-                    "price": 56
-                  }
-                },
-                "levels": {
-                  "type": "array",
-                  "description": "Только у Chat. Доплата к итогу заказа за уровень (1, 2, 3), добавляется после скидок. У уровня 1 доплаты нет",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "level": {
-                        "type": "integer",
-                        "enum": [1, 2, 3],
-                        "example": 2
-                      },
-                      "surcharge": {
-                        "type": "number",
-                        "description": "Доплата, рубли",
-                        "example": 50
-                      }
-                    },
-                    "required": ["level", "surcharge"]
-                  }
-                },
-                "subscriptions": {
-                  "type": "array",
-                  "description": "Только у Comment. Цены подписок на комментарии (только для вывода: оформить подписку через API нельзя)",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "integer",
-                        "description": "Идентификатор тарифа",
-                        "example": 3
-                      },
-                      "quantity": {
-                        "type": "integer",
-                        "description": "Постов в сутки",
-                        "example": 5
-                      },
-                      "durationHours": {
-                        "type": "integer",
-                        "description": "Срок подписки, часы",
-                        "example": 720
-                      },
-                      "price": {
-                        "type": "number",
-                        "description": "Цена подписки со всеми скидками владельца ключа, рубли",
-                        "example": 900
-                      }
-                    },
-                    "required": ["id", "quantity", "durationHours", "price"]
-                  }
+                {
+                  "$ref": "#/components/schemas/PublicCommentServiceDto"
                 }
-              },
-              "required": ["id", "platform", "type", "cost"]
+              ],
+              "discriminator": {
+                "propertyName": "type",
+                "mapping": {
+                  "Chat": "#/components/schemas/PublicChatServiceDto",
+                  "Comment": "#/components/schemas/PublicCommentServiceDto"
+                }
+              }
             }
           }
         },
@@ -602,118 +721,6 @@
           }
         },
         "required": ["balance"]
-      },
-      "PublicOrderDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid",
-            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-            "description": "Идентификатор заказа",
-            "example": "3f1a9c2e-4b7d-4a10-9c1e-2b6f5a8d0e11"
-          },
-          "platform": {
-            "type": "string",
-            "enum": ["Twitch", "Kick", "Youtube", "Wtv", "Vkplay", "Telegram"],
-            "example": "Twitch"
-          },
-          "type": {
-            "type": "string",
-            "enum": ["Follow", "Chat", "Viewer", "Comment", "View"],
-            "example": "Chat"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "Searching",
-              "Accepted",
-              "InProgress",
-              "Paused",
-              "Cancelled",
-              "Completed"
-            ],
-            "description": "Текущий статус заказа",
-            "example": "Searching"
-          },
-          "params": {
-            "type": "object",
-            "additionalProperties": true,
-            "description": "Параметры заказа. Для Chat и Comment — в той же форме, что принимает POST /orders и POST /orders/comments. Для остальных типов — как сохранены в заказе",
-            "properties": {
-              "channelUrl": {
-                "type": "string",
-                "description": "Канал в каноничном виде (для Comment — канал запланированного поста)",
-                "example": "https://twitch.tv/somechannel"
-              },
-              "startAt": {
-                "type": "string",
-                "nullable": true,
-                "format": "date-time",
-                "description": "Время старта/выхода, ISO 8601 (UTC)",
-                "example": "2026-07-01T18:00:00.000Z"
-              },
-              "durationMinutes": {
-                "type": "integer",
-                "description": "Длительность в минутах",
-                "example": 60
-              },
-              "language": {
-                "type": "string",
-                "description": "Язык сообщений",
-                "example": "Русский"
-              },
-              "comment": {
-                "type": "string",
-                "description": "Комментарий к заказу",
-                "example": "Поддержка стрима"
-              },
-              "level": {
-                "type": "integer",
-                "enum": [1, 2, 3],
-                "description": "Уровень заказа (1, 2 или 3)",
-                "example": 1
-              },
-              "alreadyPublished": {
-                "type": "boolean",
-                "description": "Только у Comment: пост уже вышел",
-                "example": true
-              },
-              "postUrl": {
-                "type": "string",
-                "description": "Только у Comment, если пост уже вышел",
-                "example": "https://t.me/channel/123"
-              }
-            }
-          },
-          "amount": {
-            "type": "string",
-            "description": "Списанная сумма (строка-Decimal, рубли)",
-            "example": "56.00"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time",
-            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-            "example": "2026-06-23T12:34:56.000Z"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time",
-            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-            "example": "2026-06-23T12:34:56.000Z"
-          }
-        },
-        "required": [
-          "id",
-          "platform",
-          "type",
-          "status",
-          "params",
-          "amount",
-          "createdAt",
-          "updatedAt"
-        ]
       },
       "PublicCreateChatOrderDto": {
         "type": "object",
@@ -821,26 +828,26 @@
       },
       "PublicCreateCommentOrderDto": {
         "type": "object",
-        "description": "Заказ «Живые комментарии» в Telegram. Два вида: пост уже вышел (postUrl) — работа начинается сразу; пост запланирован (channelUrl + startAt) — оформлять нужно минимум за 30 минут до выхода",
+        "description": "Заказ «Комментарии» в Telegram. Два вида: пост уже вышел — передайте postUrl (работа начинается сразу); пост запланирован — передайте channelUrl и startAt (оформлять нужно минимум за 30 минут до выхода). postUrl нельзя сочетать с channelUrl/startAt",
         "properties": {
           "postUrl": {
             "type": "string",
             "minLength": 1,
             "maxLength": 300,
-            "description": "Ссылка на вышедший пост: https://t.me/<канал>/<номер>",
+            "description": "Ссылка на вышедший пост: https://t.me/<канал>/<номер>. Обязателен, если пост уже вышел",
             "example": "https://t.me/channel/123"
           },
           "channelUrl": {
             "type": "string",
             "minLength": 1,
             "maxLength": 300,
-            "description": "Ссылка на канал, в котором выйдет запланированный пост",
+            "description": "Ссылка на канал, в котором выйдет запланированный пост. Обязателен вместе со startAt, если postUrl не передан",
             "example": "https://t.me/channel"
           },
           "startAt": {
             "type": "string",
             "format": "date-time",
-            "description": "Когда выйдет пост, ISO 8601 с зоной: Z или смещение (например +03:00). Сервер сам переводит в московское время",
+            "description": "Когда выйдет пост, ISO 8601 с зоной: Z или смещение (например +03:00). Обязателен вместе с channelUrl, если postUrl не передан",
             "example": "2026-07-01T18:00:00Z"
           },
           "comment": {
@@ -849,15 +856,407 @@
             "description": "Произвольный комментарий к заказу (пожелания операторам)",
             "example": "Поддержка поста"
           }
-        },
-        "oneOf": [
-          {
-            "required": ["postUrl"]
+        }
+      },
+      "PublicChatOrderParamsDto": {
+        "type": "object",
+        "description": "Параметры заказа «Живой чат»: та же форма, что принимает POST /orders",
+        "properties": {
+          "channelUrl": {
+            "type": "string",
+            "description": "Канал в каноничном виде",
+            "example": "https://twitch.tv/somechannel"
           },
-          {
-            "required": ["channelUrl", "startAt"]
+          "startAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "description": "Время старта, ISO 8601 (UTC); null, если не удалось восстановить",
+            "example": "2026-07-01T18:00:00.000Z"
+          },
+          "durationMinutes": {
+            "type": "integer",
+            "description": "Длительность в минутах",
+            "example": 60
+          },
+          "language": {
+            "type": "string",
+            "description": "Язык сообщений",
+            "example": "Русский"
+          },
+          "comment": {
+            "type": "string",
+            "description": "Комментарий к заказу",
+            "example": "Поддержка стрима"
+          },
+          "level": {
+            "type": "integer",
+            "enum": [1, 2, 3],
+            "description": "Уровень заказа (1, 2 или 3)",
+            "example": 1
           }
+        },
+        "required": [
+          "channelUrl",
+          "startAt",
+          "durationMinutes",
+          "language",
+          "comment",
+          "level"
         ]
+      },
+      "PublicChatOrderDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "description": "Идентификатор заказа",
+            "example": "3f1a9c2e-4b7d-4a10-9c1e-2b6f5a8d0e11"
+          },
+          "platform": {
+            "type": "string",
+            "enum": ["Twitch", "Kick", "Youtube", "Wtv", "Vkplay"],
+            "example": "Twitch"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["Chat"],
+            "description": "Тип заказа",
+            "example": "Chat"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Searching",
+              "Accepted",
+              "InProgress",
+              "Paused",
+              "Cancelled",
+              "Completed"
+            ],
+            "description": "Текущий статус заказа",
+            "example": "Searching"
+          },
+          "params": {
+            "$ref": "#/components/schemas/PublicChatOrderParamsDto"
+          },
+          "amount": {
+            "type": "string",
+            "description": "Списанная сумма (строка-Decimal, рубли)",
+            "example": "56.00"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+            "example": "2026-06-23T12:34:56.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+            "example": "2026-06-23T12:34:56.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "platform",
+          "type",
+          "status",
+          "params",
+          "amount",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "PublicCommentOrderParamsDto": {
+        "type": "object",
+        "description": "Параметры заказа «Комментарии»: та же форма, что принимает POST /orders/comments. Пост уже вышел — есть postUrl; пост запланирован — есть channelUrl и startAt",
+        "properties": {
+          "alreadyPublished": {
+            "type": "boolean",
+            "description": "true — пост уже вышел (заполнен postUrl), false — запланирован (заполнены channelUrl и startAt)",
+            "example": true
+          },
+          "postUrl": {
+            "type": "string",
+            "description": "Ссылка на вышедший пост (если alreadyPublished = true)",
+            "example": "https://t.me/channel/123"
+          },
+          "channelUrl": {
+            "type": "string",
+            "description": "Канал запланированного поста (если alreadyPublished = false)",
+            "example": "https://t.me/channel"
+          },
+          "startAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "description": "Когда выйдет пост, ISO 8601 (UTC) (если alreadyPublished = false); null, если не удалось восстановить",
+            "example": "2026-07-01T18:00:00.000Z"
+          },
+          "comment": {
+            "type": "string",
+            "description": "Комментарий к заказу",
+            "example": "Поддержка поста"
+          }
+        },
+        "required": ["alreadyPublished", "comment"]
+      },
+      "PublicCommentOrderDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "description": "Идентификатор заказа",
+            "example": "3f1a9c2e-4b7d-4a10-9c1e-2b6f5a8d0e11"
+          },
+          "platform": {
+            "type": "string",
+            "enum": ["Telegram"],
+            "example": "Telegram"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["Comment"],
+            "description": "Тип заказа",
+            "example": "Comment"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Searching",
+              "Accepted",
+              "InProgress",
+              "Paused",
+              "Cancelled",
+              "Completed"
+            ],
+            "description": "Текущий статус заказа",
+            "example": "InProgress"
+          },
+          "params": {
+            "$ref": "#/components/schemas/PublicCommentOrderParamsDto"
+          },
+          "amount": {
+            "type": "string",
+            "description": "Списанная сумма (строка-Decimal, рубли)",
+            "example": "30.00"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+            "example": "2026-06-23T12:34:56.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+            "example": "2026-06-23T12:34:56.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "platform",
+          "type",
+          "status",
+          "params",
+          "amount",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "PublicOtherOrderDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "description": "Идентификатор заказа",
+            "example": "3f1a9c2e-4b7d-4a10-9c1e-2b6f5a8d0e11"
+          },
+          "platform": {
+            "type": "string",
+            "enum": ["Twitch", "Kick", "Youtube", "Wtv", "Vkplay", "Telegram"],
+            "example": "Twitch"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["Follow", "Viewer", "View"],
+            "description": "Тип заказа",
+            "example": "Viewer"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Searching",
+              "Accepted",
+              "InProgress",
+              "Paused",
+              "Cancelled",
+              "Completed"
+            ],
+            "description": "Текущий статус заказа",
+            "example": "Searching"
+          },
+          "params": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Параметры заказа как сохранены (форма зависит от типа услуги)"
+          },
+          "amount": {
+            "type": "string",
+            "description": "Списанная сумма (строка-Decimal, рубли)",
+            "example": "120.00"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+            "example": "2026-06-23T12:34:56.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+            "example": "2026-06-23T12:34:56.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "platform",
+          "type",
+          "status",
+          "params",
+          "amount",
+          "createdAt",
+          "updatedAt"
+        ],
+        "description": "Заказ другого типа (Follow, Viewer, View), оформленный на сайте: через API такие заказы создать нельзя, но их можно прочитать по id"
+      },
+      "PublicChatServiceDto": {
+        "type": "object",
+        "description": "Услуга «Живой чат» (по одной на площадку)",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Идентификатор услуги",
+            "example": 12
+          },
+          "platform": {
+            "type": "string",
+            "enum": ["Twitch", "Kick", "Youtube", "Wtv", "Vkplay"],
+            "description": "Площадка",
+            "example": "Twitch"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["Chat"],
+            "example": "Chat"
+          },
+          "cost": {
+            "type": "object",
+            "properties": {
+              "price": {
+                "type": "number",
+                "description": "Цена часа чата на русском со всеми скидками владельца ключа, рубли (для другого языка ×2)",
+                "example": 56
+              }
+            },
+            "required": ["price"]
+          },
+          "levels": {
+            "type": "array",
+            "description": "Доплата к итогу заказа за уровень (1, 2, 3), добавляется после скидок. У уровня 1 доплаты нет",
+            "items": {
+              "type": "object",
+              "properties": {
+                "level": {
+                  "type": "integer",
+                  "enum": [1, 2, 3],
+                  "example": 2
+                },
+                "surcharge": {
+                  "type": "number",
+                  "description": "Доплата, рубли",
+                  "example": 50
+                }
+              },
+              "required": ["level", "surcharge"]
+            }
+          }
+        },
+        "required": ["id", "platform", "type", "cost", "levels"]
+      },
+      "PublicCommentServiceDto": {
+        "type": "object",
+        "description": "Услуга «Комментарии» (только Telegram)",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Идентификатор услуги",
+            "example": 7
+          },
+          "platform": {
+            "type": "string",
+            "enum": ["Telegram"],
+            "description": "Площадка",
+            "example": "Telegram"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["Comment"],
+            "example": "Comment"
+          },
+          "cost": {
+            "type": "object",
+            "properties": {
+              "price": {
+                "type": "number",
+                "description": "Цена одного поста со всеми скидками владельца ключа, рубли",
+                "example": 30
+              }
+            },
+            "required": ["price"]
+          },
+          "subscriptions": {
+            "type": "array",
+            "description": "Цены подписок на комментарии (только для вывода: оформить подписку через API нельзя)",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "description": "Идентификатор тарифа",
+                  "example": 3
+                },
+                "quantity": {
+                  "type": "integer",
+                  "description": "Постов в сутки",
+                  "example": 5
+                },
+                "durationHours": {
+                  "type": "integer",
+                  "description": "Срок подписки, часы",
+                  "example": 720
+                },
+                "price": {
+                  "type": "number",
+                  "description": "Цена подписки со всеми скидками владельца ключа, рубли",
+                  "example": 900
+                }
+              },
+              "required": ["id", "quantity", "durationHours", "price"]
+            }
+          }
+        },
+        "required": ["id", "platform", "type", "cost", "subscriptions"]
       }
     }
   }

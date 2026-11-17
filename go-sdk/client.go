@@ -83,7 +83,7 @@ func (c *Client) GetBalance(ctx context.Context) (*PublicBalance, error) {
 	return &out, nil
 }
 
-// CreateCommentOrder — POST /orders/comments: заказ «Живые комментарии» (Telegram), пост уже
+// CreateCommentOrder — POST /orders/comments: заказ «Комментарии» (Telegram), пост уже
 // вышел (PostURL) или запланирован (ChannelURL + StartAt). Сумму считает сервер.
 func (c *Client) CreateCommentOrder(ctx context.Context, in CreateCommentOrderInput) (*PublicOrder, error) {
 	var out PublicOrder

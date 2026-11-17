@@ -72,7 +72,7 @@ class ShopStreamClient:
         self,
         order: Union["CreateCommentOrderInput", Dict[str, Any]],
     ) -> PublicOrder:
-        """``POST /orders/comments`` — создать заказ «Живые комментарии» (Telegram).
+        """``POST /orders/comments`` — создать заказ «Комментарии» (Telegram).
 
         Пост уже вышел (``post_url``) или запланирован (``channel_url`` + ``start_at``).
         Принимает :class:`CreateCommentOrderInput` или ``dict`` с теми же ключами API.

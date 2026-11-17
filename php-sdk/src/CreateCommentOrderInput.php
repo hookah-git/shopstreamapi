@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace ShopStream;
 
 /**
- * Тело POST /orders/comments — заказ «Живые комментарии» (Telegram).
+ * Тело POST /orders/comments — заказ «Комментарии» (Telegram).
  *
  * Два вида: пост уже вышел (postUrl) либо запланирован (channelUrl + startAt, минимум за 30 минут
  * до выхода). Сумму считает сервер.

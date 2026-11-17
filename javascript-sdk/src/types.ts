@@ -82,7 +82,7 @@ export interface PublicOrder {
   updatedAt: string;
 }
 
-/** Параметры заказа «Живые комментарии» в ответе: та же форма, что принимает `POST /orders/comments`. */
+/** Параметры заказа «Комментарии» в ответе: та же форма, что принимает `POST /orders/comments`. */
 export interface CommentOrderParams {
   alreadyPublished: boolean;
   /** Если пост уже вышел. */
@@ -123,7 +123,7 @@ export interface CreateChatOrderInput {
 }
 
 /**
- * Тело `POST /orders/comments` — заказ «Живые комментарии» (Telegram). Два вида: пост уже вышел
+ * Тело `POST /orders/comments` — заказ «Комментарии» (Telegram). Два вида: пост уже вышел
  * (`postUrl`) либо запланирован (`channelUrl` + `startAt`, минимум за 30 минут до выхода).
  */
 export type CreateCommentOrderInput =
