@@ -23,7 +23,7 @@ use ShopStream\Enums\Platform;
 
 $client = new Client(
     'sk_live_...',
-    'https://shop-stream.ru/api', // ваш хост + префикс /api
+    'https://shop-stream.ru/api/v1', // ваш хост + префикс /api/v1
 );
 
 $services = $client->listServices();
@@ -55,7 +55,7 @@ $fetched = $client->getOrder($order->id);
 
 ## Ошибки
 
-При HTTP не-2xx или `success: false` бросается `ShopStreamApiError`:
+При HTTP не-2xx бросается `ShopStreamApiError`:
 
 ```php
 use ShopStream\Exception\ShopStreamApiError;
@@ -64,8 +64,7 @@ try {
     $client->getOrder('missing');
 } catch (ShopStreamApiError $e) {
     echo $e->status;     // 404
-    echo json_encode($e->errors); // тело errors из конверта
-    echo $e->requestId;  // id запроса для трассировки
+    echo json_encode($e->errors); // тело ответа-ошибки: statusCode, statusMessage, message, data
 }
 ```
 

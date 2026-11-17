@@ -23,6 +23,7 @@ export default defineConfig({
           { text: 'Аутентификация', link: '/#auth' },
           { text: 'Конверт ответа', link: '/#envelope' },
           { text: 'Ошибки и лимиты', link: '/#errors' },
+          { text: 'Callback (webhook)', link: '/#webhooks' },
           { text: 'Перечисления', link: '/#enums' },
         ],
       },

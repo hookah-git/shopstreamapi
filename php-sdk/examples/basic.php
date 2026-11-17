@@ -4,7 +4,7 @@
  * Запуск:
  *   cd php-sdk
  *   composer install            # сгенерирует vendor/autoload.php
- *   SHOPSTREAM_API_KEY=sk_live_... SHOPSTREAM_BASE_URL=https://host/api \
+ *   SHOPSTREAM_API_KEY=sk_live_... SHOPSTREAM_BASE_URL=https://host/api/v1 \
  *       php examples/basic.php
  */
 
@@ -18,7 +18,7 @@ use ShopStream\Enums\Platform;
 use ShopStream\Exception\ShopStreamApiError;
 
 $apiKey = getenv('SHOPSTREAM_API_KEY') ?: 'sk_live_replace_me';
-$baseUrl = getenv('SHOPSTREAM_BASE_URL') ?: 'https://shop-stream.ru/api';
+$baseUrl = getenv('SHOPSTREAM_BASE_URL') ?: 'https://shop-stream.ru/api/v1';
 
 $client = new Client($apiKey, $baseUrl);
 

@@ -19,56 +19,49 @@
                     },
                     "data": {
                       "$ref": "#/components/schemas/PublicServiceListDto"
-                    },
-                    "ts": {
-                      "type": "string",
-                      "nullable": true,
-                      "example": "42ms"
-                    },
-                    "id": {
-                      "type": "string",
-                      "format": "uuid"
                     }
                   },
-                  "required": ["success", "data", "ts", "id"]
+                  "required": ["success", "data"]
                 }
               }
             }
           },
           "401": {
-            "description": "",
+            "description": "Нет ключа, ключ недействителен или истёк",
             "content": {
               "application/json": {
                 "schema": {
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "errors": {
-                      "oneOf": [
-                        {
-                          "type": "array",
-                          "items": {
-                            "type": "object"
-                          }
-                        },
-                        {
-                          "type": "object"
-                        }
-                      ]
-                    },
-                    "ts": {
-                      "type": "string",
-                      "nullable": true,
-                      "example": "42ms"
-                    },
-                    "id": {
-                      "type": "string",
-                      "format": "uuid"
-                    }
-                  },
-                  "required": ["success", "errors", "ts", "id"]
+                  "$ref": "#/components/schemas/PublicErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Пользователь заблокирован",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicErrorDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Превышен лимит запросов (60 в минуту на ключ)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicErrorDto"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Сервис заказов недоступен или вернул ошибку",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicErrorDto"
                 }
               }
             }
@@ -101,56 +94,49 @@
                     },
                     "data": {
                       "$ref": "#/components/schemas/PublicBalanceDto"
-                    },
-                    "ts": {
-                      "type": "string",
-                      "nullable": true,
-                      "example": "42ms"
-                    },
-                    "id": {
-                      "type": "string",
-                      "format": "uuid"
                     }
                   },
-                  "required": ["success", "data", "ts", "id"]
+                  "required": ["success", "data"]
                 }
               }
             }
           },
           "401": {
-            "description": "",
+            "description": "Нет ключа, ключ недействителен или истёк",
             "content": {
               "application/json": {
                 "schema": {
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "errors": {
-                      "oneOf": [
-                        {
-                          "type": "array",
-                          "items": {
-                            "type": "object"
-                          }
-                        },
-                        {
-                          "type": "object"
-                        }
-                      ]
-                    },
-                    "ts": {
-                      "type": "string",
-                      "nullable": true,
-                      "example": "42ms"
-                    },
-                    "id": {
-                      "type": "string",
-                      "format": "uuid"
-                    }
-                  },
-                  "required": ["success", "errors", "ts", "id"]
+                  "$ref": "#/components/schemas/PublicErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Пользователь заблокирован",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicErrorDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Превышен лимит запросов (60 в минуту на ключ)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicErrorDto"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Сервис заказов недоступен или вернул ошибку",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicErrorDto"
                 }
               }
             }
@@ -193,132 +179,69 @@
                     },
                     "data": {
                       "$ref": "#/components/schemas/PublicOrderDto"
-                    },
-                    "ts": {
-                      "type": "string",
-                      "nullable": true,
-                      "example": "42ms"
-                    },
-                    "id": {
-                      "type": "string",
-                      "format": "uuid"
                     }
                   },
-                  "required": ["success", "data", "ts", "id"]
+                  "required": ["success", "data"]
                 }
               }
             }
           },
           "400": {
-            "description": "",
+            "description": "Ошибка валидации запроса",
             "content": {
               "application/json": {
                 "schema": {
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "errors": {
-                      "oneOf": [
-                        {
-                          "type": "array",
-                          "items": {
-                            "type": "object"
-                          }
-                        },
-                        {
-                          "type": "object"
-                        }
-                      ]
-                    },
-                    "ts": {
-                      "type": "string",
-                      "nullable": true,
-                      "example": "42ms"
-                    },
-                    "id": {
-                      "type": "string",
-                      "format": "uuid"
-                    }
-                  },
-                  "required": ["success", "errors", "ts", "id"]
+                  "$ref": "#/components/schemas/PublicErrorDto"
                 }
               }
             }
           },
           "401": {
-            "description": "",
+            "description": "Нет ключа, ключ недействителен или истёк",
             "content": {
               "application/json": {
                 "schema": {
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "errors": {
-                      "oneOf": [
-                        {
-                          "type": "array",
-                          "items": {
-                            "type": "object"
-                          }
-                        },
-                        {
-                          "type": "object"
-                        }
-                      ]
-                    },
-                    "ts": {
-                      "type": "string",
-                      "nullable": true,
-                      "example": "42ms"
-                    },
-                    "id": {
-                      "type": "string",
-                      "format": "uuid"
-                    }
-                  },
-                  "required": ["success", "errors", "ts", "id"]
+                  "$ref": "#/components/schemas/PublicErrorDto"
                 }
               }
             }
           },
-          "422": {
-            "description": "",
+          "403": {
+            "description": "Пользователь заблокирован",
             "content": {
               "application/json": {
                 "schema": {
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "errors": {
-                      "oneOf": [
-                        {
-                          "type": "array",
-                          "items": {
-                            "type": "object"
-                          }
-                        },
-                        {
-                          "type": "object"
-                        }
-                      ]
-                    },
-                    "ts": {
-                      "type": "string",
-                      "nullable": true,
-                      "example": "42ms"
-                    },
-                    "id": {
-                      "type": "string",
-                      "format": "uuid"
-                    }
-                  },
-                  "required": ["success", "errors", "ts", "id"]
+                  "$ref": "#/components/schemas/PublicErrorDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Бизнес-ограничение, например недостаточно средств (insufficient balance)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicErrorDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Превышен лимит запросов (60 в минуту на ключ)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicErrorDto"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Сервис заказов недоступен или вернул ошибку",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicErrorDto"
                 }
               }
             }
@@ -360,94 +283,69 @@
                     },
                     "data": {
                       "$ref": "#/components/schemas/PublicOrderDto"
-                    },
-                    "ts": {
-                      "type": "string",
-                      "nullable": true,
-                      "example": "42ms"
-                    },
-                    "id": {
-                      "type": "string",
-                      "format": "uuid"
                     }
                   },
-                  "required": ["success", "data", "ts", "id"]
+                  "required": ["success", "data"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный id заказа (не UUID)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicErrorDto"
                 }
               }
             }
           },
           "401": {
-            "description": "",
+            "description": "Нет ключа, ключ недействителен или истёк",
             "content": {
               "application/json": {
                 "schema": {
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "errors": {
-                      "oneOf": [
-                        {
-                          "type": "array",
-                          "items": {
-                            "type": "object"
-                          }
-                        },
-                        {
-                          "type": "object"
-                        }
-                      ]
-                    },
-                    "ts": {
-                      "type": "string",
-                      "nullable": true,
-                      "example": "42ms"
-                    },
-                    "id": {
-                      "type": "string",
-                      "format": "uuid"
-                    }
-                  },
-                  "required": ["success", "errors", "ts", "id"]
+                  "$ref": "#/components/schemas/PublicErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Пользователь заблокирован",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicErrorDto"
                 }
               }
             }
           },
           "404": {
-            "description": "",
+            "description": "Заказ не найден (чужой и несуществующий неразличимы)",
             "content": {
               "application/json": {
                 "schema": {
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "errors": {
-                      "oneOf": [
-                        {
-                          "type": "array",
-                          "items": {
-                            "type": "object"
-                          }
-                        },
-                        {
-                          "type": "object"
-                        }
-                      ]
-                    },
-                    "ts": {
-                      "type": "string",
-                      "nullable": true,
-                      "example": "42ms"
-                    },
-                    "id": {
-                      "type": "string",
-                      "format": "uuid"
-                    }
-                  },
-                  "required": ["success", "errors", "ts", "id"]
+                  "$ref": "#/components/schemas/PublicErrorDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Превышен лимит запросов (60 в минуту на ключ)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicErrorDto"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Сервис заказов недоступен или вернул ошибку",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicErrorDto"
                 }
               }
             }
@@ -465,12 +363,17 @@
   },
   "info": {
     "title": "ShopStream Public API",
-    "description": "Публичный API ShopStream. Аутентификация по заголовку x-api-key. Ключ выпускает администратор. Все ответы обёрнуты в конверт { success, data, ts, id }.",
+    "description": "Публичный API ShopStream. Аутентификация по заголовку x-api-key. Ключ выпускает администратор. Успешные ответы обёрнуты в конверт { success, data }. Ошибки приходят в формате { error, url, statusCode, statusMessage, message, data? }. Версия API — в пути: базовый URL https://shop-stream.ru/api/v1.",
     "version": "1.0",
     "contact": {}
   },
   "tags": [],
-  "servers": [],
+  "servers": [
+    {
+      "url": "https://shop-stream.ru/api/v1",
+      "description": "Production"
+    }
+  ],
   "components": {
     "securitySchemes": {
       "apiKey": {
@@ -497,21 +400,14 @@
                 },
                 "platform": {
                   "type": "string",
-                  "enum": [
-                    "Twitch",
-                    "Kick",
-                    "Youtube",
-                    "Wtv",
-                    "Vkplay",
-                    "Telegram"
-                  ],
+                  "enum": ["Twitch", "Kick", "Youtube", "Wtv", "Vkplay"],
                   "description": "Площадка",
                   "example": "Twitch"
                 },
                 "type": {
                   "type": "string",
-                  "enum": ["Follow", "Chat", "Viewer", "Comment", "View"],
-                  "description": "Тип услуги",
+                  "enum": ["Chat"],
+                  "description": "Тип услуги (сейчас в API только «Живой чат»)",
                   "example": "Chat"
                 },
                 "cost": {
@@ -522,13 +418,33 @@
                     }
                   },
                   "required": ["price"],
-                  "description": "Тариф: price — цена за час чата с учётом всех скидок пользователя (рубли)",
+                  "description": "Тариф: price — цена часа чата на русском с учётом всех скидок пользователя (рубли). Для другого языка цена ×2",
                   "example": {
                     "price": 56
                   }
+                },
+                "levels": {
+                  "type": "array",
+                  "description": "Доплата к итогу заказа за уровень (1, 2, 3), добавляется после скидок. У уровня 1 доплаты нет",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "level": {
+                        "type": "integer",
+                        "enum": [1, 2, 3],
+                        "example": 2
+                      },
+                      "surcharge": {
+                        "type": "number",
+                        "description": "Доплата, рубли",
+                        "example": 50
+                      }
+                    },
+                    "required": ["level", "surcharge"]
+                  }
                 }
               },
-              "required": ["id", "platform", "type", "cost"]
+              "required": ["id", "platform", "type", "cost", "levels"]
             }
           }
         },
@@ -580,46 +496,25 @@
           },
           "params": {
             "type": "object",
+            "additionalProperties": true,
+            "description": "Параметры заказа. Для типа Chat — в той же форме, что принимает POST /orders. Для остальных типов — как сохранены в заказе",
             "properties": {
               "channelUrl": {
                 "type": "string",
                 "description": "Ссылка на канал/стрим",
                 "example": "https://twitch.tv/somechannel"
               },
-              "startDate": {
+              "startAt": {
                 "type": "string",
-                "description": "Дата/время старта, ISO 8601 (UTC)",
+                "nullable": true,
+                "format": "date-time",
+                "description": "Время старта, ISO 8601 (UTC)",
                 "example": "2026-07-01T18:00:00.000Z"
               },
-              "startHour": {
-                "type": "string",
-                "description": "Час старта по Москве (HH)",
-                "example": "21"
-              },
-              "startMinute": {
-                "type": "string",
-                "description": "Минута старта по Москве (mm)",
-                "example": "00"
-              },
-              "durationHour": {
-                "type": "number",
-                "description": "Часть длительности — часы",
-                "example": 1
-              },
-              "durationMinute": {
-                "type": "number",
-                "description": "Часть длительности — минуты",
-                "example": 0
-              },
-              "totalHours": {
-                "type": "number",
-                "description": "Длительность в часах (дробное)",
-                "example": 1
-              },
-              "doneHours": {
-                "type": "number",
-                "description": "Сколько часов уже отработано",
-                "example": 0
+              "durationMinutes": {
+                "type": "integer",
+                "description": "Длительность в минутах",
+                "example": 60
               },
               "language": {
                 "type": "string",
@@ -632,37 +527,12 @@
                 "example": "Поддержка стрима"
               },
               "level": {
+                "type": "integer",
+                "enum": [1, 2, 3],
                 "description": "Уровень заказа (1, 2 или 3)",
-                "example": 1,
-                "anyOf": [
-                  {
-                    "type": "number",
-                    "enum": [1]
-                  },
-                  {
-                    "type": "number",
-                    "enum": [2]
-                  },
-                  {
-                    "type": "number",
-                    "enum": [3]
-                  }
-                ]
+                "example": 1
               }
-            },
-            "required": [
-              "channelUrl",
-              "startDate",
-              "startHour",
-              "startMinute",
-              "durationHour",
-              "durationMinute",
-              "totalHours",
-              "doneHours",
-              "language",
-              "comment"
-            ],
-            "description": "Параметры заказа (форма для типа Chat)"
+            }
           },
           "amount": {
             "type": "string",
@@ -698,7 +568,7 @@
         "properties": {
           "platform": {
             "type": "string",
-            "enum": ["Twitch", "Kick", "Youtube", "Wtv", "Vkplay", "Telegram"],
+            "enum": ["Twitch", "Kick", "Youtube", "Wtv", "Vkplay"],
             "description": "Площадка стрима",
             "example": "Twitch"
           },
@@ -706,25 +576,25 @@
             "type": "string",
             "minLength": 1,
             "description": "Ссылка на канал/стрим",
-            "example": "https://twitch.tv/somechannel"
+            "example": "https://twitch.tv/somechannel",
+            "maxLength": 300
           },
           "startAt": {
             "type": "string",
             "format": "date-time",
-            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-            "description": "Время старта чата, ISO 8601 (трактуется как UTC)",
+            "description": "Время старта чата, ISO 8601 с зоной: Z или смещение (например +03:00). Сервер сам переводит в московское время",
             "example": "2026-07-01T18:00:00Z"
           },
           "durationMinutes": {
             "type": "integer",
-            "minimum": 30,
-            "maximum": 1435,
-            "description": "Длительность чата в минутах (30..1435, то есть до 23:55)",
+            "minimum": 1,
+            "maximum": 1440,
+            "description": "Длительность чата в минутах (1..1440)",
             "example": 60
           },
           "level": {
             "default": 1,
-            "description": "Уровень заказа чата (по умолчанию 1)",
+            "description": "Уровень заказа 1 (по умолчанию), 2 или 3: 2 и 3 стоят дороже (доплата за площадку в GET /services)",
             "example": 1,
             "anyOf": [
               {
@@ -744,15 +614,58 @@
           "language": {
             "description": "Язык сообщений (по умолчанию «Русский»)",
             "example": "Русский",
-            "type": "string"
+            "type": "string",
+            "maxLength": 50
           },
           "comment": {
             "description": "Произвольный комментарий к заказу",
             "example": "Поддержка стрима",
-            "type": "string"
+            "type": "string",
+            "maxLength": 500
           }
         },
         "required": ["platform", "channelUrl", "startAt", "durationMinutes"]
+      },
+      "PublicErrorDto": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "boolean",
+            "example": true
+          },
+          "url": {
+            "type": "string",
+            "description": "Полный URL запроса",
+            "example": "https://shop-stream.ru/api/v1/orders"
+          },
+          "statusCode": {
+            "type": "integer",
+            "description": "HTTP-статус",
+            "example": 409
+          },
+          "statusMessage": {
+            "type": "string",
+            "description": "Краткая причина отказа",
+            "example": "insufficient balance"
+          },
+          "message": {
+            "type": "string",
+            "description": "То же, что statusMessage",
+            "example": "insufficient balance"
+          },
+          "data": {
+            "type": "object",
+            "description": "Дополнительные данные (необязательно)",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Стабильный код ошибки заказа, если известен",
+                "example": "free_test_used_chat"
+              }
+            }
+          }
+        },
+        "required": ["error", "url", "statusCode", "statusMessage", "message"]
       }
     }
   }

@@ -34,8 +34,8 @@ func WithHTTPClient(h *http.Client) Option {
 
 // NewClient создаёт клиент.
 //
-// baseURL — базовый URL вместе с префиксом /api,
-// например "https://shop-stream.ru/api".
+// baseURL — базовый URL вместе с версией API (/api/v1),
+// например "https://shop-stream.ru/api/v1".
 func NewClient(apiKey, baseURL string, opts ...Option) (*Client, error) {
 	if apiKey == "" {
 		return nil, errors.New("shopstream: apiKey is required")
@@ -58,9 +58,11 @@ func NewClient(apiKey, baseURL string, opts ...Option) (*Client, error) {
 type envelope struct {
 	Success bool            `json:"success"`
 	Data    json.RawMessage `json:"data"`
-	Errors  interface{}     `json:"errors"`
-	TS      *string         `json:"ts"`
-	ID      string          `json:"id"`
+}
+
+// errorBody — тело ответа-ошибки: { error, url, statusCode, statusMessage, message, data? }.
+type errorBody struct {
+	Message string `json:"message"`
 }
 
 // ListServices — GET /services.
@@ -136,17 +138,23 @@ func (c *Client) do(ctx context.Context, method, path string, body, out interfac
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 || !env.Success {
-		return &APIError{
-			Status:    resp.StatusCode,
-			Errors:    env.Errors,
-			RequestID: env.ID,
-			Message:   fmt.Sprintf("request failed: %s %s", method, path),
+		// Тело ошибки отдаём целиком (произвольный JSON), в сообщение — поле message.
+		var body interface{} = string(raw)
+		var parsed interface{}
+		if json.Unmarshal(raw, &parsed) == nil && parsed != nil {
+			body = parsed
 		}
+		msg := fmt.Sprintf("request failed: %s %s", method, path)
+		var eb errorBody
+		if json.Unmarshal(raw, &eb) == nil && eb.Message != "" {
+			msg += ": " + eb.Message
+		}
+		return &APIError{Status: resp.StatusCode, Errors: body, Message: msg}
 	}
 
 	if out != nil && len(env.Data) > 0 {
 		if err := json.Unmarshal(env.Data, out); err != nil {
-			return &APIError{Status: resp.StatusCode, Errors: err, RequestID: env.ID, Message: "cannot decode data payload"}
+			return &APIError{Status: resp.StatusCode, Errors: err, Message: "cannot decode data payload"}
 		}
 	}
 	return nil

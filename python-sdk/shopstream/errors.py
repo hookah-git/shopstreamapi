@@ -6,12 +6,14 @@ from typing import Any, Optional
 
 
 class ShopStreamApiError(Exception):
-    """Бросается при HTTP не-2xx или конверте с ``success: false``.
+    """Бросается при HTTP не-2xx.
 
     Атрибуты:
         status: HTTP-статус (0, если запрос не дошёл до сервера).
-        errors: содержимое поля ``errors`` из конверта.
-        request_id: ``id`` запроса из конверта (для трассировки), если есть.
+        errors: тело ответа-ошибки ``{error, url, statusCode, statusMessage, message, data?}``
+            (или текст, если ответ не JSON).
+        request_id: не используется публичным API v1 (поля ``id`` в ответах нет);
+            оставлено для совместимости.
     """
 
     def __init__(

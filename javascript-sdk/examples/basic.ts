@@ -4,13 +4,13 @@
  *
  * Переменные окружения:
  *   SHOPSTREAM_API_KEY  — ваш ключ
- *   SHOPSTREAM_BASE_URL — базовый URL с префиксом /api
+ *   SHOPSTREAM_BASE_URL — базовый URL с префиксом /api/v1
  */
 import { ShopStreamApiError, ShopStreamClient } from '../src/index.js';
 
 const apiKey = process.env.SHOPSTREAM_API_KEY ?? 'sk_live_replace_me';
 const baseUrl =
-  process.env.SHOPSTREAM_BASE_URL ?? 'https://shop-stream.ru/api';
+  process.env.SHOPSTREAM_BASE_URL ?? 'https://shop-stream.ru/api/v1';
 
 const client = new ShopStreamClient({ apiKey, baseUrl });
 

@@ -21,7 +21,7 @@ import { ShopStreamClient, ShopStreamApiError } from '@shopstream/sdk';
 
 const client = new ShopStreamClient({
   apiKey: process.env.SHOPSTREAM_API_KEY!,
-  baseUrl: 'https://shop-stream.ru/api', // ваш хост + префикс /api
+  baseUrl: 'https://shop-stream.ru/api/v1', // ваш хост + префикс /api/v1
 });
 
 const { services } = await client.listServices();
@@ -50,7 +50,7 @@ const fetched = await client.getOrder(order.id);
 
 ## Ошибки
 
-При HTTP не-2xx или `success: false` бросается `ShopStreamApiError`:
+При HTTP не-2xx бросается `ShopStreamApiError`:
 
 ```ts
 try {
@@ -58,8 +58,7 @@ try {
 } catch (e) {
   if (e instanceof ShopStreamApiError) {
     console.error(e.status);    // 404
-    console.error(e.errors);    // тело errors из конверта
-    console.error(e.requestId); // id запроса для трассировки
+    console.error(e.errors); // тело ответа-ошибки: { statusCode, statusMessage, message, data? }
   }
 }
 ```
@@ -69,7 +68,7 @@ try {
 | Опция | По умолчанию | Описание |
 |-------|--------------|----------|
 | `apiKey` | — (обяз.) | Заголовок `x-api-key` |
-| `baseUrl` | — (обяз.) | Базовый URL + префикс `/api` |
+| `baseUrl` | — (обяз.) | Базовый URL + префикс `/api/v1` |
 | `timeoutMs` | `30000` | Таймаут запроса |
 | `fetch` | `globalThis.fetch` | Своя реализация fetch |
 

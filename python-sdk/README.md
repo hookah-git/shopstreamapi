@@ -19,7 +19,7 @@ from shopstream import ShopStreamClient, CreateChatOrderInput, Platform
 
 client = ShopStreamClient(
     api_key="sk_live_...",
-    base_url="https://shop-stream.ru/api",  # ваш хост + префикс /api
+    base_url="https://shop-stream.ru/api/v1",  # ваш хост + префикс /api/v1
 )
 
 services = client.list_services()
@@ -53,7 +53,7 @@ fetched = client.get_order(order.id)
 
 ## Ошибки
 
-При HTTP не-2xx или `success: false` бросается `ShopStreamApiError`:
+При HTTP не-2xx бросается `ShopStreamApiError`:
 
 ```python
 from shopstream import ShopStreamApiError
@@ -62,8 +62,7 @@ try:
     client.get_order("missing")
 except ShopStreamApiError as e:
     print(e.status)      # 404
-    print(e.errors)      # тело errors из конверта
-    print(e.request_id)  # id запроса для трассировки
+    print(e.errors)  # тело ответа-ошибки: statusCode, statusMessage, message, data
 ```
 
 ## Пример

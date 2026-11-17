@@ -16,9 +16,9 @@ final class CreateChatOrderInput
     public function __construct(
         public readonly Platform|string $platform,
         public readonly string $channelUrl,
-        /** ISO 8601 с Z (UTC). */
+        /** ISO 8601 с зоной: Z или смещение (+03:00). */
         public readonly string $startAt,
-        /** 30..1435. */
+        /** 1..1440. */
         public readonly int $durationMinutes,
         public readonly ?string $language = null,
         public readonly ?string $comment = null,
