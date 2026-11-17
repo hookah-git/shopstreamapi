@@ -357,7 +357,8 @@
           }
         ],
         "summary": "Создать заказ «Живые комментарии» (Telegram)",
-        "tags": ["Public API"]
+        "tags": ["Public API"],
+        "description": "Заказ комментариев под постом в Telegram. Сумму считает сервер по цене поста и скидкам владельца ключа. Об изменении статуса заказа сообщает callback (webhook): адрес настраивается для ключа в panel/settings, подробности в разделе «Callback (webhook)»."
       }
     },
     "/orders/{id}": {
@@ -642,11 +643,7 @@
             "properties": {
               "channelUrl": {
                 "type": "string",
-<<<<<<< HEAD
-                "description": "Ссылка на канал/стрим (Comment: на канал запланированного поста)",
-=======
                 "description": "Канал в каноничном виде (для Comment — канал запланированного поста)",
->>>>>>> docs/api-v1-actual-contract
                 "example": "https://twitch.tv/somechannel"
               },
               "startAt": {
