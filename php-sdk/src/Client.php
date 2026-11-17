@@ -63,6 +63,19 @@ final class Client
         return PublicOrder::fromArray($this->request('POST', '/orders', $body));
     }
 
+    /**
+     * POST /orders/comments — создать заказ «Живые комментарии» (Telegram): пост уже вышел
+     * (postUrl) или запланирован (channelUrl + startAt). Сумму считает сервер.
+     *
+     * @param CreateCommentOrderInput|array<string,mixed> $order
+     */
+    public function createCommentOrder(CreateCommentOrderInput|array $order): PublicOrder
+    {
+        $body = $order instanceof CreateCommentOrderInput ? $order->toArray() : $order;
+
+        return PublicOrder::fromArray($this->request('POST', '/orders/comments', $body));
+    }
+
     /** GET /orders/{id} — получить свой заказ по id. */
     public function getOrder(string $id): PublicOrder
     {

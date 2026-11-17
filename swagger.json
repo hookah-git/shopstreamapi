@@ -256,6 +256,110 @@
         "tags": ["Public API"]
       }
     },
+    "/orders/comments": {
+      "post": {
+        "operationId": "createCommentOrder",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicCreateCommentOrderDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PublicOrderDto"
+                    }
+                  },
+                  "required": ["success", "data"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Ошибка валидации запроса, неверная ссылка на пост или пост запланирован менее чем за 30 минут",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Нет ключа, ключ недействителен или истёк",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Пользователь заблокирован",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicErrorDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Бизнес-ограничение: недостаточно средств (insufficient balance) или пост ещё не опубликован / ссылка неверна",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicErrorDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Превышен лимит запросов (60 в минуту на ключ)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicErrorDto"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Сервис заказов недоступен или вернул ошибку",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Создать заказ «Живые комментарии» (Telegram)",
+        "tags": ["Public API"]
+      }
+    },
     "/orders/{id}": {
       "get": {
         "description": "Возвращает заказ, оформленный владельцем ключа. Чужой или несуществующий заказ → 404.",
@@ -363,7 +467,7 @@
   },
   "info": {
     "title": "ShopStream Public API",
-    "description": "Публичный API ShopStream. Аутентификация по заголовку x-api-key. Ключ выпускает администратор. Успешные ответы обёрнуты в конверт { success, data }. Ошибки приходят в формате { error, url, statusCode, statusMessage, message, data? }. Версия API — в пути: базовый URL https://shop-stream.ru/api/v1.",
+    "description": "Публичный API ShopStream: каталог услуг, баланс, заказы «Живой чат» и «Живые комментарии» (Telegram). Аутентификация по заголовку x-api-key. Ключ выпускает администратор. Успешные ответы обёрнуты в конверт { success, data }. Ошибки приходят в формате { error, url, statusCode, statusMessage, message, data? }. Версия API — в пути: базовый URL https://shop-stream.ru/api/v1.",
     "version": "1.0",
     "contact": {}
   },
@@ -400,14 +504,21 @@
                 },
                 "platform": {
                   "type": "string",
-                  "enum": ["Twitch", "Kick", "Youtube", "Wtv", "Vkplay"],
+                  "enum": [
+                    "Twitch",
+                    "Kick",
+                    "Youtube",
+                    "Wtv",
+                    "Vkplay",
+                    "Telegram"
+                  ],
                   "description": "Площадка",
                   "example": "Twitch"
                 },
                 "type": {
                   "type": "string",
-                  "enum": ["Chat"],
-                  "description": "Тип услуги (сейчас в API только «Живой чат»)",
+                  "enum": ["Chat", "Comment"],
+                  "description": "Тип услуги: Chat — «Живой чат», Comment — «Живые комментарии» (только Telegram)",
                   "example": "Chat"
                 },
                 "cost": {
@@ -418,14 +529,14 @@
                     }
                   },
                   "required": ["price"],
-                  "description": "Тариф: price — цена часа чата на русском с учётом всех скидок пользователя (рубли). Для другого языка цена ×2",
+                  "description": "Тариф: price — цена со всеми скидками владельца ключа (рубли). Chat: цена часа чата на русском (для другого языка ×2). Comment: цена одного поста",
                   "example": {
                     "price": 56
                   }
                 },
                 "levels": {
                   "type": "array",
-                  "description": "Доплата к итогу заказа за уровень (1, 2, 3), добавляется после скидок. У уровня 1 доплаты нет",
+                  "description": "Только у Chat. Доплата к итогу заказа за уровень (1, 2, 3), добавляется после скидок. У уровня 1 доплаты нет",
                   "items": {
                     "type": "object",
                     "properties": {
@@ -442,9 +553,39 @@
                     },
                     "required": ["level", "surcharge"]
                   }
+                },
+                "subscriptions": {
+                  "type": "array",
+                  "description": "Только у Comment. Цены подписок на комментарии (только для вывода: оформить подписку через API нельзя)",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "description": "Идентификатор тарифа",
+                        "example": 3
+                      },
+                      "quantity": {
+                        "type": "integer",
+                        "description": "Постов в сутки",
+                        "example": 5
+                      },
+                      "durationHours": {
+                        "type": "integer",
+                        "description": "Срок подписки, часы",
+                        "example": 720
+                      },
+                      "price": {
+                        "type": "number",
+                        "description": "Цена подписки со всеми скидками владельца ключа, рубли",
+                        "example": 900
+                      }
+                    },
+                    "required": ["id", "quantity", "durationHours", "price"]
+                  }
                 }
               },
-              "required": ["id", "platform", "type", "cost", "levels"]
+              "required": ["id", "platform", "type", "cost"]
             }
           }
         },
@@ -497,18 +638,18 @@
           "params": {
             "type": "object",
             "additionalProperties": true,
-            "description": "Параметры заказа. Для типа Chat — в той же форме, что принимает POST /orders. Для остальных типов — как сохранены в заказе",
+            "description": "Параметры заказа. Для Chat и Comment — в той же форме, что принимает POST /orders и POST /orders/comments. Для остальных типов — как сохранены в заказе",
             "properties": {
               "channelUrl": {
                 "type": "string",
-                "description": "Ссылка на канал/стрим",
+                "description": "Ссылка на канал/стрим (Comment: на канал запланированного поста)",
                 "example": "https://twitch.tv/somechannel"
               },
               "startAt": {
                 "type": "string",
                 "nullable": true,
                 "format": "date-time",
-                "description": "Время старта, ISO 8601 (UTC)",
+                "description": "Время старта/выхода, ISO 8601 (UTC)",
                 "example": "2026-07-01T18:00:00.000Z"
               },
               "durationMinutes": {
@@ -531,6 +672,16 @@
                 "enum": [1, 2, 3],
                 "description": "Уровень заказа (1, 2 или 3)",
                 "example": 1
+              },
+              "alreadyPublished": {
+                "type": "boolean",
+                "description": "Только у Comment: пост уже вышел",
+                "example": true
+              },
+              "postUrl": {
+                "type": "string",
+                "description": "Только у Comment, если пост уже вышел",
+                "example": "https://t.me/channel/123"
               }
             }
           },
@@ -666,6 +817,46 @@
           }
         },
         "required": ["error", "url", "statusCode", "statusMessage", "message"]
+      },
+      "PublicCreateCommentOrderDto": {
+        "type": "object",
+        "description": "Заказ «Живые комментарии» в Telegram. Два вида: пост уже вышел (postUrl) — работа начинается сразу; пост запланирован (channelUrl + startAt) — оформлять нужно минимум за 30 минут до выхода",
+        "properties": {
+          "postUrl": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300,
+            "description": "Ссылка на вышедший пост: https://t.me/<канал>/<номер>",
+            "example": "https://t.me/channel/123"
+          },
+          "channelUrl": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300,
+            "description": "Ссылка на канал, в котором выйдет запланированный пост",
+            "example": "https://t.me/channel"
+          },
+          "startAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Когда выйдет пост, ISO 8601 с зоной: Z или смещение (например +03:00). Сервер сам переводит в московское время",
+            "example": "2026-07-01T18:00:00Z"
+          },
+          "comment": {
+            "type": "string",
+            "maxLength": 1000,
+            "description": "Произвольный комментарий к заказу (пожелания операторам)",
+            "example": "Поддержка поста"
+          }
+        },
+        "oneOf": [
+          {
+            "required": ["postUrl"]
+          },
+          {
+            "required": ["channelUrl", "startAt"]
+          }
+        ]
       }
     }
   }

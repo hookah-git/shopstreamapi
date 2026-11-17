@@ -49,6 +49,7 @@ $fetched = $client->getOrder($order->id);
 | `listServices()` | `GET /services` | `PublicServiceList` |
 | `getBalance()` | `GET /balance` | `PublicBalance` |
 | `createChatOrder($order)` | `POST /orders` | `PublicOrder` |
+| `createCommentOrder($order)` | `POST /orders/comments` | `PublicOrder` |
 | `getOrder($id)` | `GET /orders/{id}` | `PublicOrder` |
 
 Каждый метод возвращает уже распакованное поле `data` из конверта.

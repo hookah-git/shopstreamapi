@@ -8,8 +8,9 @@ namespace ShopStream\Models;
 final class PublicService
 {
     /**
-     * @param array<string,mixed> $cost Тариф: price — цена часа чата на русском со всеми скидками (₽); для другого языка ×2.
-     * @param list<array{level:int,surcharge:int|float}> $levels Доплата к итогу заказа за уровень (1, 2, 3).
+     * @param array<string,mixed> $cost Тариф: price — цена со всеми скидками (₽): у Chat цена часа чата на русском (для другого языка ×2), у Comment — цена одного поста.
+     * @param list<array{level:int,surcharge:int|float}> $levels Только у Chat: доплата к итогу заказа за уровень (1, 2, 3).
+     * @param list<array{id:int,quantity:int,durationHours:int,price:int|float}> $subscriptions Только у Comment: цены подписок (только для вывода).
      */
     public function __construct(
         public readonly int $id,
@@ -17,6 +18,7 @@ final class PublicService
         public readonly string $type,
         public readonly array $cost,
         public readonly array $levels = [],
+        public readonly array $subscriptions = [],
     ) {
     }
 
@@ -29,6 +31,7 @@ final class PublicService
             type: (string) $d['type'],
             cost: $d['cost'] ?? [],
             levels: $d['levels'] ?? [],
+            subscriptions: $d['subscriptions'] ?? [],
         );
     }
 }

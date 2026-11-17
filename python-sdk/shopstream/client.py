@@ -11,6 +11,7 @@ from urllib.parse import quote
 from .errors import ShopStreamApiError
 from .models import (
     CreateChatOrderInput,
+    CreateCommentOrderInput,
     PublicBalance,
     PublicOrder,
     PublicServiceList,
@@ -66,6 +67,18 @@ class ShopStreamClient:
         """
         body = order.to_dict() if isinstance(order, CreateChatOrderInput) else dict(order)
         return PublicOrder.from_dict(self._request("POST", "/orders", body))
+
+    def create_comment_order(
+        self,
+        order: Union["CreateCommentOrderInput", Dict[str, Any]],
+    ) -> PublicOrder:
+        """``POST /orders/comments`` — создать заказ «Живые комментарии» (Telegram).
+
+        Пост уже вышел (``post_url``) или запланирован (``channel_url`` + ``start_at``).
+        Принимает :class:`CreateCommentOrderInput` или ``dict`` с теми же ключами API.
+        """
+        body = order.to_dict() if isinstance(order, CreateCommentOrderInput) else dict(order)
+        return PublicOrder.from_dict(self._request("POST", "/orders/comments", body))
 
     def get_order(self, order_id: str) -> PublicOrder:
         """``GET /orders/{id}`` — получить свой заказ по id."""

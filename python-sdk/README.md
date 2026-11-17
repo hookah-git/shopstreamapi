@@ -47,6 +47,7 @@ fetched = client.get_order(order.id)
 | `list_services()` | `GET /services` | `PublicServiceList` |
 | `get_balance()` | `GET /balance` | `PublicBalance` |
 | `create_chat_order(order)` | `POST /orders` | `PublicOrder` |
+| `create_comment_order(order)` | `POST /orders/comments` | `PublicOrder` |
 | `get_order(order_id)` | `GET /orders/{id}` | `PublicOrder` |
 
 Каждый метод возвращает уже распакованное поле `data` из конверта.
