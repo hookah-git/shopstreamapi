@@ -46,9 +46,9 @@ class CreateChatOrderInput:
     """
 
     platform: Union[Platform, str]
-    channel_url: str
-    start_at: str  # ISO 8601 с ``Z`` (UTC)
-    duration_minutes: int  # 30..1435
+    channel_url: str  # название канала или ссылка на канал (не на видео/трансляцию)
+    start_at: str  # ISO 8601 с зоной: ``Z`` или смещение (``+03:00``)
+    duration_minutes: int  # 1..1440
     language: Optional[str] = None
     comment: Optional[str] = None
     level: Optional[int] = None  # 1, 2 или 3 (по умолчанию 1)
@@ -77,7 +77,10 @@ class PublicService:
     id: int
     platform: str
     type: str
+    #: ``{"price": число}`` — цена часа чата на русском со всеми скидками (₽); для другого языка ×2.
     cost: Dict[str, Any]
+    #: Доплаты к итогу заказа за уровни: ``[{"level": 1, "surcharge": 0}, ...]``.
+    levels: List[Dict[str, Any]] = field(default_factory=list)
 
     @classmethod
     def from_dict(cls, d: Dict[str, Any]) -> "PublicService":
@@ -86,6 +89,7 @@ class PublicService:
             platform=d["platform"],
             type=d["type"],
             cost=d.get("cost", {}),
+            levels=d.get("levels", []),
         )
 
 

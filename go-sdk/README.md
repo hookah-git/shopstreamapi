@@ -23,7 +23,7 @@ import (
 
 client, err := shopstream.NewClient(
     "sk_live_...",
-    "https://shop-stream.ru/api", // ваш хост + префикс /api
+    "https://shop-stream.ru/api/v1", // ваш хост + префикс /api/v1
 )
 if err != nil { /* ... */ }
 
@@ -55,15 +55,14 @@ fetched, err := client.GetOrder(ctx, order.ID)
 
 ## Ошибки
 
-При HTTP не-2xx или `success: false` возвращается `*APIError`:
+При HTTP не-2xx возвращается `*APIError`:
 
 ```go
 _, err := client.GetOrder(ctx, "missing")
 var apiErr *shopstream.APIError
 if errors.As(err, &apiErr) {
     fmt.Println(apiErr.Status)    // 404
-    fmt.Println(apiErr.Errors)    // тело errors из конверта
-    fmt.Println(apiErr.RequestID) // id запроса для трассировки
+    fmt.Println(apiErr.Errors) // тело ответа-ошибки: statusCode, statusMessage, message, data
 }
 ```
 

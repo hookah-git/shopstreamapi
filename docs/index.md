@@ -25,13 +25,14 @@ function responsesOf(operationId) {
 # StreamShop Public API {#top}
 
 Публичный API для внешних клиентов: каталог услуг, баланс и заказы «Живой чат».
-Аутентификация по заголовку `x-api-key`, все ответы — в едином конверте
-`{ success, data, ts, id }`.
+Аутентификация по заголовку `x-api-key`, успешные ответы — в конверте `{ success, data }`.
+Об изменении статуса заказа сообщает [callback (webhook)](#webhooks): адрес для ключа настраивается
+в панели (`panel/settings`).
 
 <div class="api-callout">
 
-**Base URL** · <code>https://shop-stream.ru/api</code> — путь эндпоинта добавляется к базе
-(итоговый пример: `https://shop-stream.ru/api/services`). Версионирования нет.
+**Base URL** · <code>https://shop-stream.ru/api/v1</code> — путь эндпоинта добавляется к базе
+(итоговый пример: `https://shop-stream.ru/api/v1/services`). Версия API — часть пути.
 
 </div>
 
@@ -55,43 +56,88 @@ x-api-key: <ключ>
 Успех:
 
 ```json
-{ "success": true, "data": { "...": "payload" }, "ts": "42ms", "id": "0f9c1b2e-..." }
-```
-
-Ошибка:
-
-```json
-{ "success": false, "errors": { "...": "object|array" }, "ts": "42ms", "id": "0f9c1b2e-..." }
+{ "success": true, "data": { "...": "payload" } }
 ```
 
 | Поле | Тип | Описание |
 |------|-----|----------|
-| `success` | boolean | результат запроса |
-| `data` | object | полезная нагрузка (при успехе) |
-| `errors` | object \| array | детали ошибки (при `success:false`) |
-| `ts` | string \| null | время обработки, напр. `"42ms"` |
-| `id` | string (uuid) | идентификатор запроса для трассировки |
+| `success` | boolean | всегда `true` при успехе |
+| `data` | object | полезная нагрузка |
+
+Ошибка (HTTP-статус 4xx/5xx, тело не использует конверт `success`):
+
+```json
+{
+  "error": true,
+  "url": "https://shop-stream.ru/api/v1/orders",
+  "statusCode": 409,
+  "statusMessage": "insufficient balance",
+  "message": "insufficient balance",
+  "data": { "code": "free_test_used_chat" }
+}
+```
+
+| Поле | Тип | Описание |
+|------|-----|----------|
+| `error` | boolean | всегда `true` |
+| `url` | string | URL запроса |
+| `statusCode` | integer | HTTP-статус |
+| `statusMessage` / `message` | string | причина отказа (одинаковы) |
+| `data.code` | string? | стабильный код ошибки заказа, если известен (необязательно) |
 
 > Все [SDK](#sdk) распаковывают конверт автоматически: методы возвращают сразу `data`,
-> а при ошибке бросают типизированный `ShopStreamApiError(status, errors, requestId)`.
+> а при ошибке бросают типизированный `ShopStreamApiError(status, errors, requestId)`
+> (`errors` — тело ответа-ошибки; `requestId` для публичного API не приходит).
 
 ## Ошибки и лимиты {#errors}
 
 | Код | Когда |
 |-----|-------|
-| **400** | ошибка валидации тела или недостаточно средств |
-| **401** | нет ключа / невалидный ключ |
-| **404** | чужой или несуществующий ресурс |
-| **422** | бизнес-ограничение (напр. тип услуги вне теста) |
+| **400** | ошибка валидации тела запроса или некорректный id заказа |
+| **401** | нет ключа / невалидный или истёкший ключ |
+| **403** | пользователь заблокирован |
+| **404** | чужой или несуществующий заказ |
+| **409** | бизнес-ограничение, например недостаточно средств (`insufficient balance`) или бесплатный тест уже использован |
 | **429** | превышен лимит запросов |
+| **502** | сервис заказов недоступен или вернул ошибку |
 
-**Лимиты:** ~60 запросов/мин на ключ + глобальный backstop 120/мин по IP. Превышение → **429**
-(рекомендуется экспоненциальный backoff).
+**Лимит:** 60 запросов в минуту на ключ. Превышение → **429** (рекомендуется
+экспоненциальный backoff).
+
+## Callback (webhook) {#webhooks}
+
+Пользователь ключа может указать адрес callback в `panel/settings` (адрес только `https`, без
+логина/пароля, не `localhost` и не приватные сети). Когда у заказа, **оформленного этим ключом**,
+меняется статус, на адрес приходит `POST` с JSON:
+
+```json
+{
+  "id": "<delivery id>",
+  "type": "order.status_changed",
+  "createdAt": "2026-07-01T18:00:00.000Z",
+  "data": {
+    "orderId": "3f1a9c2e-4b7d-4a10-9c1e-2b6f5a8d0e11",
+    "status": "InProgress",
+    "previousStatus": "Accepted",
+    "order": { "...": "тот же объект, что возвращает GET /orders/{id}" }
+  }
+}
+```
+
+Заголовки: `x-streamshop-event`, `x-streamshop-delivery`, `x-streamshop-timestamp`,
+`x-streamshop-signature: sha256=<hex>`. Подпись — HMAC-SHA256 от строки `<timestamp>.<тело>`
+с секретом вида `whsec_…` (его показывает панель); проверяйте и подпись, и свежесть timestamp.
+
+Ответ получателя с кодом 2xx считается успехом. При ошибке или таймауте (10 с) доставка
+повторяется ещё 3 раза: через 5 с, 30 с и 5 минут. Очередь повторов хранится в памяти сервера и
+после его перезапуска теряется, поэтому для надёжности периодически сверяйтесь через
+`GET /orders/{id}`.
 
 ## Перечисления {#enums}
 
-- **Platform:** `Twitch` · `Kick` · `Youtube` · `Wtv` · `Vkplay` · `Telegram`
-- **ServiceType:** `Follow` · `Chat` · `Viewer` · `Comment` — в `POST /orders` доступен только `Chat`
+- **Platform:** `Twitch` · `Kick` · `Youtube` · `Wtv` · `Vkplay` — для `GET /services` и `POST /orders`;
+  в заказах (`GET /orders/{id}`) может встретиться и `Telegram`
+- **ServiceType:** `Follow` · `Chat` · `Viewer` · `Comment` · `View` — `GET /services` и `POST /orders` работают только с `Chat`
 - **OrderStatus:** `Searching` · `Accepted` · `InProgress` · `Paused` · `Cancelled` · `Completed`
 
 <div class="op-card op-grid">
@@ -140,6 +186,35 @@ x-api-key: <ключ>
 <div class="op-col">
 
 ## Создать заказ «Живой чат» {#op-createChatOrder}
+
+### Поле `channelUrl` {#channel-url}
+
+Передавайте **название канала** или **ссылку на канал** выбранной площадки — не ссылку на видео
+и не на трансляцию. Сервер приводит значение к каноничной ссылке канала (берёт ник из пути ссылки,
+хвост вроде `/live` или `/videos/…` отбрасывает), именно она сохраняется в заказе и возвращается в
+`params.channelUrl`.
+
+| Площадка | Принимается | Сохраняется как |
+|----------|-------------|-----------------|
+| Twitch | `somechannel`, `twitch.tv/somechannel` | `https://twitch.tv/somechannel` |
+| Kick | `somechannel`, `kick.com/somechannel` | `https://kick.com/somechannel` |
+| YouTube | `MrBeast`, `@MrBeast`, `https://www.youtube.com/@MrBeast`, `https://www.youtube.com/@MrBeast/live` | `https://youtube.com/@MrBeast` |
+| Wtv | `somechannel`, `https://w.tv/somechannel` | `https://w.tv/somechannel` |
+| Vkplay | `somechannel`, `https://live.vkvideo.ru/somechannel`, `https://vkplay.live/somechannel` | `https://live.vkvideo.ru/somechannel` |
+
+Ссылка другой площадки или ник неподходящей длины → **400**. **Ссылки на видео и трансляции не
+поддерживаются**: канал по ним не определяется, и заказ уйдёт на неверный канал. Для YouTube это,
+например:
+
+| Передали | Что получится |
+|----------|---------------|
+| `https://www.youtube.com/watch?v=dQw4w9WgXcQ` | канал `@watch` |
+| `https://youtu.be/dQw4w9WgXcQ` | канал `@dQw4w9WgXcQ` |
+| `https://www.youtube.com/live/dQw4w9WgXcQ` | канал `@live` |
+| `https://www.youtube.com/channel/UC…`, `https://www.youtube.com/user/…` | каналы `@channel`, `@user` |
+| `https://www.youtube.com/c/MrBeast` | 400, ник не распознан |
+
+Для YouTube всегда передавайте handle канала: `@MrBeast` или `https://www.youtube.com/@MrBeast`.
 
 <OAOperation operationId="createChatOrder" />
 
@@ -190,7 +265,7 @@ import { ShopStreamClient } from '@shopstream/sdk';
 
 const client = new ShopStreamClient({
   apiKey: process.env.SHOPSTREAM_API_KEY!,
-  baseUrl: 'https://shop-stream.ru/api',
+  baseUrl: 'https://shop-stream.ru/api/v1',
 });
 
 const { services } = await client.listServices();
@@ -211,7 +286,7 @@ from shopstream import ShopStreamClient, CreateChatOrderInput, Platform
 
 client = ShopStreamClient(
     api_key="sk_live_...",
-    base_url="https://shop-stream.ru/api",
+    base_url="https://shop-stream.ru/api/v1",
 )
 
 services = client.list_services()
@@ -234,7 +309,7 @@ use ShopStream\Client;
 use ShopStream\CreateChatOrderInput;
 use ShopStream\Enums\Platform;
 
-$client = new Client('sk_live_...', 'https://shop-stream.ru/api');
+$client = new Client('sk_live_...', 'https://shop-stream.ru/api/v1');
 
 $services = $client->listServices();
 $balance = $client->getBalance();
@@ -255,7 +330,7 @@ import (
     shopstream "github.com/shopstream/go-sdk"
 )
 
-client, _ := shopstream.NewClient("sk_live_...", "https://shop-stream.ru/api")
+client, _ := shopstream.NewClient("sk_live_...", "https://shop-stream.ru/api/v1")
 ctx := context.Background()
 
 services, _ := client.ListServices(ctx)

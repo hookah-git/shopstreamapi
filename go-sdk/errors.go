@@ -4,13 +4,14 @@ import "fmt"
 
 // APIError — ошибка публичного API ShopStream.
 //
-// Возвращается при HTTP не-2xx или конверте с success: false.
+// Возвращается при HTTP не-2xx.
 type APIError struct {
 	// Status — HTTP-статус (0, если запрос не дошёл до сервера).
 	Status int
-	// Errors — содержимое поля errors из конверта (произвольный JSON).
+	// Errors — тело ответа-ошибки: { error, url, statusCode, statusMessage, message, data? }
+	// (или текст, если ответ не JSON).
 	Errors interface{}
-	// RequestID — id запроса из конверта (для трассировки), если есть.
+	// RequestID — не используется публичным API v1 (поля id в ответах нет); для совместимости.
 	RequestID string
 	// Message — человекочитаемое описание.
 	Message string

@@ -12,8 +12,8 @@ export interface ShopStreamOptions {
   /** API-ключ (заголовок `x-api-key`). Выпускается администратором. */
   apiKey: string;
   /**
-   * Базовый URL вместе с префиксом `/api`.
-   * Пример: `https://shop-stream.ru/api`.
+   * Базовый URL вместе с версией API: `/api/v1`.
+   * Пример: `https://shop-stream.ru/api/v1`.
    */
   baseUrl: string;
   /** Таймаут запроса в миллисекундах (по умолчанию 30000). */
@@ -25,14 +25,14 @@ export interface ShopStreamOptions {
 /**
  * Тонкий клиент публичного API ShopStream.
  *
- * Все методы возвращают распакованное поле `data` из конверта; при `success: false`
- * или не-2xx статусе бросается {@link ShopStreamApiError}.
+ * Все методы возвращают распакованное поле `data` из конверта; при не-2xx статусе
+ * бросается {@link ShopStreamApiError} (в `errors` — тело ответа-ошибки).
  *
  * @example
  * ```ts
  * const client = new ShopStreamClient({
  *   apiKey: 'sk_live_...',
- *   baseUrl: 'https://shop-stream.ru/api',
+ *   baseUrl: 'https://shop-stream.ru/api/v1',
  * });
  * const { services } = await client.listServices();
  * ```
@@ -128,13 +128,16 @@ export class ShopStreamClient {
       }
     }
 
-    if (!response.ok || !payload || payload.success === false) {
-      const errors = payload && 'errors' in payload ? payload.errors : payload;
+    if (!response.ok || !payload || !('success' in payload) || !payload.success) {
+      // Тело ошибки — { error, statusCode, statusMessage, message, data? }; отдаём его целиком.
+      const reason =
+        payload && 'message' in payload && typeof payload.message === 'string'
+          ? `: ${payload.message}`
+          : '';
       throw new ShopStreamApiError(
-        `Request failed: ${method} ${path} → HTTP ${response.status}`,
+        `Request failed: ${method} ${path} → HTTP ${response.status}${reason}`,
         response.status,
-        errors,
-        payload?.id,
+        payload,
       );
     }
 

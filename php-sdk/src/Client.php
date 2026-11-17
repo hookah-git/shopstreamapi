@@ -12,7 +12,7 @@ use ShopStream\Models\PublicServiceList;
 /**
  * Тонкий клиент публичного API ShopStream (на ext-curl, без внешних зависимостей).
  *
- * Все методы возвращают распакованное поле data из конверта; при success: false
+ * Все методы возвращают распакованное поле data из конверта; при не-2xx статусе
  * или не-2xx статусе бросается {@see ShopStreamApiError}.
  */
 final class Client
@@ -21,7 +21,7 @@ final class Client
 
     /**
      * @param string $apiKey  Заголовок x-api-key.
-     * @param string $baseUrl Базовый URL вместе с префиксом /api.
+     * @param string $baseUrl Базовый URL вместе с версией API: /api/v1.
      * @param int    $timeout Таймаут запроса в секундах.
      */
     public function __construct(
@@ -113,13 +113,15 @@ final class Client
 
         $success = is_array($payload) && ($payload['success'] ?? false) === true;
         if ($status < 200 || $status >= 300 || !$success) {
-            $errors = is_array($payload) ? ($payload['errors'] ?? null) : $raw;
-            $requestId = is_array($payload) ? ($payload['id'] ?? null) : null;
+            // Тело ошибки: { error, url, statusCode, statusMessage, message, data? } — отдаём целиком.
+            $errors = is_array($payload) ? $payload : $raw;
+            $reason = is_array($payload) && is_string($payload['message'] ?? null)
+                ? ': ' . $payload['message']
+                : '';
             throw new ShopStreamApiError(
-                "Request failed: {$method} {$path} -> HTTP {$status}",
+                "Request failed: {$method} {$path} -> HTTP {$status}{$reason}",
                 $status,
                 $errors,
-                $requestId,
             );
         }
 

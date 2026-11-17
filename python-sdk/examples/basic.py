@@ -2,7 +2,7 @@
 
 Запуск:
     pip install -e .
-    SHOPSTREAM_API_KEY=sk_live_... SHOPSTREAM_BASE_URL=https://host/api \\
+    SHOPSTREAM_API_KEY=sk_live_... SHOPSTREAM_BASE_URL=https://host/api/v1 \\
         python examples/basic.py
 """
 
@@ -16,7 +16,7 @@ from shopstream import (
 )
 
 api_key = os.environ.get("SHOPSTREAM_API_KEY", "sk_live_replace_me")
-base_url = os.environ.get("SHOPSTREAM_BASE_URL", "https://shop-stream.ru/api")
+base_url = os.environ.get("SHOPSTREAM_BASE_URL", "https://shop-stream.ru/api/v1")
 
 client = ShopStreamClient(api_key=api_key, base_url=base_url)
 

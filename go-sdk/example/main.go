@@ -1,7 +1,7 @@
 // Запуск:
 //
 //	cd go-sdk
-//	SHOPSTREAM_API_KEY=sk_live_... SHOPSTREAM_BASE_URL=https://host/api \
+//	SHOPSTREAM_API_KEY=sk_live_... SHOPSTREAM_BASE_URL=https://host/api/v1 \
 //	    go run ./example
 package main
 
@@ -16,7 +16,7 @@ import (
 
 func main() {
 	apiKey := envOr("SHOPSTREAM_API_KEY", "sk_live_replace_me")
-	baseURL := envOr("SHOPSTREAM_BASE_URL", "https://shop-stream.ru/api")
+	baseURL := envOr("SHOPSTREAM_BASE_URL", "https://shop-stream.ru/api/v1")
 
 	client, err := shopstream.NewClient(apiKey, baseURL)
 	if err != nil {

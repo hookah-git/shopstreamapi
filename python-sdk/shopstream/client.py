@@ -21,13 +21,14 @@ class ShopStreamClient:
     """Тонкий клиент публичного API ShopStream.
 
     Все методы возвращают распакованное поле ``data`` из конверта; при
-    ``success: false`` или не-2xx статусе бросается :class:`ShopStreamApiError`.
+    не-2xx статусе бросается :class:`ShopStreamApiError` (в ``errors`` — тело
+    ответа-ошибки).
 
     Пример::
 
         client = ShopStreamClient(
             api_key="sk_live_...",
-            base_url="https://shop-stream.ru/api",
+            base_url="https://shop-stream.ru/api/v1",
         )
         services = client.list_services()
     """
@@ -110,14 +111,15 @@ class ShopStreamClient:
                     f"Invalid JSON response (status {status})", status, raw
                 ) from exc
 
-        if status < 200 or status >= 300 or not payload or payload.get("success") is False:
-            errors = payload.get("errors") if payload else raw
-            request_id = payload.get("id") if payload else None
+        if status < 200 or status >= 300 or not payload or payload.get("success") is not True:
+            # Тело ошибки: { error, url, statusCode, statusMessage, message, data? } — отдаём целиком.
+            reason = ""
+            if isinstance(payload, dict) and isinstance(payload.get("message"), str):
+                reason = f": {payload['message']}"
             raise ShopStreamApiError(
-                f"Request failed: {method} {path} -> HTTP {status}",
+                f"Request failed: {method} {path} -> HTTP {status}{reason}",
                 status,
-                errors,
-                request_id,
+                payload if payload else raw,
             )
 
         return payload["data"]

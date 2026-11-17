@@ -34,12 +34,20 @@ const (
 	OrderStatusCompleted  OrderStatus = "Completed"
 )
 
-// PublicService — тариф услуги «Живой чат»; cost["price"] — цена за час со всеми скидками.
+// ServiceLevel — доплата к итогу заказа за уровень (1, 2, 3); у уровня 1 доплаты нет.
+type ServiceLevel struct {
+	Level     int     `json:"level"`
+	Surcharge float64 `json:"surcharge"`
+}
+
+// PublicService — тариф услуги «Живой чат»; cost["price"] — цена часа чата на русском
+// со всеми скидками (для другого языка ×2).
 type PublicService struct {
 	ID       int64                  `json:"id"`
 	Platform Platform               `json:"platform"`
 	Type     ServiceType            `json:"type"`
 	Cost     map[string]interface{} `json:"cost"`
+	Levels   []ServiceLevel         `json:"levels"`
 }
 
 // PublicServiceList — ответ GET /services.
@@ -70,9 +78,9 @@ type PublicOrder struct {
 // опциональных полей, чтобы не слать пустые значения (omitempty).
 type CreateChatOrderInput struct {
 	Platform        Platform `json:"platform"`
-	ChannelURL      string   `json:"channelUrl"`
-	StartAt         string   `json:"startAt"`         // ISO 8601 с Z (UTC)
-	DurationMinutes int      `json:"durationMinutes"` // 30..1435
+	ChannelURL      string   `json:"channelUrl"`      // название канала или ссылка на канал (не на видео/трансляцию)
+	StartAt         string   `json:"startAt"`         // ISO 8601 с зоной: Z или смещение (+03:00)
+	DurationMinutes int      `json:"durationMinutes"` // 1..1440
 	Language        *string  `json:"language,omitempty"`
 	Comment         *string  `json:"comment,omitempty"`
 	Level           *int     `json:"level,omitempty"` // 1, 2 или 3 (по умолчанию 1)

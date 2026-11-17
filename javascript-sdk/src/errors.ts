@@ -1,14 +1,14 @@
 /**
  * Ошибка публичного API ShopStream.
  *
- * Бросается, когда HTTP-статус не 2xx или конверт ответа содержит `success: false`.
+ * Бросается, когда HTTP-статус не 2xx.
  */
 export class ShopStreamApiError extends Error {
   /** HTTP-статус ответа (0, если запрос не дошёл до сервера). */
   readonly status: number;
-  /** Содержимое поля `errors` из конверта (object | array | строка). */
+  /** Тело ответа-ошибки: `{ error, url, statusCode, statusMessage, message, data? }` (или текст, если не JSON). */
   readonly errors: unknown;
-  /** Идентификатор запроса (`id` из конверта), если есть — для трассировки. */
+  /** Не используется публичным API v1 (поля `id` в ответах нет); оставлено для совместимости. */
   readonly requestId?: string;
 
   constructor(

@@ -9,14 +9,14 @@ use RuntimeException;
 /**
  * Ошибка публичного API ShopStream.
  *
- * Бросается при HTTP не-2xx или конверте с success: false.
+ * Бросается при HTTP не-2xx.
  */
 final class ShopStreamApiError extends RuntimeException
 {
     /**
      * @param int $status HTTP-статус (0, если запрос не дошёл до сервера).
-     * @param mixed $errors Содержимое поля errors из конверта.
-     * @param string|null $requestId id запроса из конверта (для трассировки).
+     * @param mixed $errors Тело ответа-ошибки {error, url, statusCode, statusMessage, message, data?} (или текст).
+     * @param string|null $requestId Не используется публичным API v1 (поля id в ответах нет); для совместимости.
      */
     public function __construct(
         string $message,

@@ -11,7 +11,7 @@ const spec = JSON.parse(readFileSync(src, 'utf8'));
 if (!Array.isArray(spec.servers) || spec.servers.length === 0) {
   spec.servers = [
     {
-      url: 'https://shop-stream.ru/api',
+      url: 'https://shop-stream.ru/api/v1',
       description: 'Production',
     },
   ];
