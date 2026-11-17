@@ -189,10 +189,10 @@ x-api-key: <ключ>
 
 ### Поле `channelUrl` {#channel-url}
 
-Передавайте **название канала** или **ссылку на канал** выбранной площадки — не ссылку на видео
-и не на трансляцию. Сервер приводит значение к каноничной ссылке канала (берёт ник из пути ссылки,
-хвост вроде `/live` или `/videos/…` отбрасывает), именно она сохраняется в заказе и возвращается в
-`params.channelUrl`.
+Передавайте **название канала** или **ссылку на канал** выбранной площадки. Для YouTube можно также
+передать **ссылку на видео или трансляцию** — канал определится по её автору (см. ниже). Сервер
+приводит значение к каноничной ссылке канала (берёт ник из пути ссылки, хвост вроде `/live` или
+`/videos/…` отбрасывает), именно она сохраняется в заказе и возвращается в `params.channelUrl`.
 
 | Площадка | Принимается | Сохраняется как |
 |----------|-------------|-----------------|
@@ -202,19 +202,25 @@ x-api-key: <ключ>
 | Wtv | `somechannel`, `https://w.tv/somechannel` | `https://w.tv/somechannel` |
 | Vkplay | `somechannel`, `https://live.vkvideo.ru/somechannel`, `https://vkplay.live/somechannel` | `https://live.vkvideo.ru/somechannel` |
 
-Ссылка другой площадки или ник неподходящей длины → **400**. **Ссылки на видео и трансляции не
-поддерживаются**: канал по ним не определяется, и заказ уйдёт на неверный канал. Для YouTube это,
-например:
+Ссылка другой площадки или ник неподходящей длины → **400**.
 
-| Передали | Что получится |
-|----------|---------------|
-| `https://www.youtube.com/watch?v=dQw4w9WgXcQ` | канал `@watch` |
-| `https://youtu.be/dQw4w9WgXcQ` | канал `@dQw4w9WgXcQ` |
-| `https://www.youtube.com/live/dQw4w9WgXcQ` | канал `@live` |
-| `https://www.youtube.com/channel/UC…`, `https://www.youtube.com/user/…` | каналы `@channel`, `@user` |
-| `https://www.youtube.com/c/MrBeast` | 400, ник не распознан |
+#### YouTube: ссылка на видео или трансляцию {#youtube-video}
 
-Для YouTube всегда передавайте handle канала: `@MrBeast` или `https://www.youtube.com/@MrBeast`.
+Ссылки на видео и трансляции YouTube принимаются: канал определяется автоматически по автору видео
+(это может занять несколько секунд), в заказ уходит ссылка на этот канал.
+
+| Передали | Канал в заказе |
+|----------|----------------|
+| `https://www.youtube.com/watch?v=dQw4w9WgXcQ` | `https://www.youtube.com/@RickAstleyYT` |
+| `https://www.youtube.com/live/dQw4w9WgXcQ` | `https://www.youtube.com/@RickAstleyYT` |
+| `https://youtu.be/dQw4w9WgXcQ` | `https://www.youtube.com/@RickAstleyYT` |
+| `https://www.youtube.com/shorts/…`, `https://www.youtube.com/embed/…` | канал автора видео |
+
+Если видео не найдено или канал определить не удалось (например, у канала нет `@handle`) — **400** с
+пояснением; передайте ссылку на канал (`https://www.youtube.com/@handle`).
+
+Ссылки вида `https://www.youtube.com/channel/UC…`, `/user/…` и `/c/…` **не поддерживаются** (канал по
+ним не определяется): используйте `@handle`.
 
 <OAOperation operationId="createChatOrder" />
 
