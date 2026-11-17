@@ -33,7 +33,7 @@ export default defineConfig({
           { text: 'GET · Список услуг', link: '/#op-listServices' },
           { text: 'GET · Баланс', link: '/#op-getBalance' },
           { text: 'POST · Заказ «Живой чат»', link: '/#op-createChatOrder' },
-          { text: 'POST · Заказ «Живые комментарии»', link: '/#op-createCommentOrder' },
+          { text: 'POST · Заказ «Комментарии»', link: '/#op-createCommentOrder' },
           { text: 'GET · Заказ по id', link: '/#op-getOrder' },
         ],
       },

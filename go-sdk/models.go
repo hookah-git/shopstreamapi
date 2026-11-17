@@ -83,7 +83,7 @@ type PublicOrder struct {
 	UpdatedAt string                 `json:"updatedAt"`
 }
 
-// CreateCommentOrderInput — тело POST /orders/comments (заказ «Живые комментарии», Telegram).
+// CreateCommentOrderInput — тело POST /orders/comments (заказ «Комментарии», Telegram).
 //
 // Два вида: пост уже вышел (PostURL) либо запланирован (ChannelURL + StartAt, минимум за
 // 30 минут до выхода). Сумму считает сервер. Указатели — чтобы не слать пустые значения.

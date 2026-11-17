@@ -24,7 +24,7 @@ function responsesOf(operationId) {
 
 # StreamShop Public API {#top}
 
-Публичный API для внешних клиентов: каталог услуг, баланс и заказы «Живой чат» и «Живые комментарии» (Telegram).
+Публичный API для внешних клиентов: каталог услуг, баланс и заказы «Живой чат» и «Комментарии» (Telegram).
 Аутентификация по заголовку `x-api-key`, успешные ответы — в конверте `{ success, data }`.
 Об изменении статуса заказа сообщает [callback (webhook)](#webhooks): адрес для ключа настраивается
 в панели (`panel/settings`).
@@ -235,7 +235,7 @@ x-api-key: <ключ>
 <div class="op-card op-grid">
 <div class="op-col">
 
-## Создать заказ «Живые комментарии» {#op-createCommentOrder}
+## Создать заказ «Комментарии» {#op-createCommentOrder}
 
 Заказ комментариев под постом в Telegram. Два вида: **пост уже вышел** (`postUrl`) — работа начинается
 сразу; **пост запланирован** (`channelUrl` + `startAt`) — оформлять нужно минимум за 30 минут до выхода.
@@ -307,7 +307,7 @@ const order = await client.createChatOrder({
 
 const fetched = await client.getOrder(order.id);
 
-// Живые комментарии (Telegram): пост уже вышел
+// Комментарии (Telegram): пост уже вышел
 const commentOrder = await client.createCommentOrder({
   postUrl: 'https://t.me/channel/123',
 });
@@ -335,7 +335,7 @@ order = client.create_chat_order(
 
 fetched = client.get_order(order.id)
 
-# Живые комментарии (Telegram): пост уже вышел
+# Комментарии (Telegram): пост уже вышел
 comment_order = client.create_comment_order(
     CreateCommentOrderInput(post_url="https://t.me/channel/123")
 )
@@ -361,7 +361,7 @@ $order = $client->createChatOrder(new CreateChatOrderInput(
 
 $fetched = $client->getOrder($order->id);
 
-// Живые комментарии (Telegram): пост уже вышел
+// Комментарии (Telegram): пост уже вышел
 $commentOrder = $client->createCommentOrder(new CreateCommentOrderInput(
     postUrl: 'https://t.me/channel/123',
 ));
@@ -388,7 +388,7 @@ order, _ := client.CreateChatOrder(ctx, shopstream.CreateChatOrderInput{
 
 fetched, _ := client.GetOrder(ctx, order.ID)
 
-// Живые комментарии (Telegram): пост уже вышел
+// Комментарии (Telegram): пост уже вышел
 postURL := "https://t.me/channel/123"
 commentOrder, _ := client.CreateCommentOrder(ctx, shopstream.CreateCommentOrderInput{PostURL: &postURL})
 ```

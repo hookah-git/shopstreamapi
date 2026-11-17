@@ -64,7 +64,7 @@ final class Client
     }
 
     /**
-     * POST /orders/comments — создать заказ «Живые комментарии» (Telegram): пост уже вышел
+     * POST /orders/comments — создать заказ «Комментарии» (Telegram): пост уже вышел
      * (postUrl) или запланирован (channelUrl + startAt). Сумму считает сервер.
      *
      * @param CreateCommentOrderInput|array<string,mixed> $order

@@ -72,7 +72,7 @@ class CreateChatOrderInput:
 
 @dataclass
 class CreateCommentOrderInput:
-    """Тело ``POST /orders/comments`` — заказ «Живые комментарии» (Telegram).
+    """Тело ``POST /orders/comments`` — заказ «Комментарии» (Telegram).
 
     Два вида: пост уже вышел (``post_url``) либо запланирован (``channel_url`` +
     ``start_at``, минимум за 30 минут до выхода). Сумму считает сервер.

@@ -78,7 +78,7 @@ export class ShopStreamClient {
   }
 
   /**
-   * `POST /orders/comments` — создать заказ «Живые комментарии» (Telegram): пост уже вышел
+   * `POST /orders/comments` — создать заказ «Комментарии» (Telegram): пост уже вышел
    * (`postUrl`) или запланирован (`channelUrl` + `startAt`). Сумма считается сервером.
    */
   createCommentOrder(input: CreateCommentOrderInput): Promise<PublicOrder> {
