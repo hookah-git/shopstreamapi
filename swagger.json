@@ -153,7 +153,7 @@
     },
     "/orders": {
       "post": {
-        "description": "Оформляет заказ на живой чат для стрима. В тестовом режиме поддерживается только тип Chat. Сумма рассчитывается сервером по тарифу услуги и списывается с баланса владельца ключа; указывать сумму не нужно. Время старта startAt трактуется как UTC.",
+        "description": "Заказ чата на стриме. Сумму считает сервер по тарифу и скидкам владельца ключа и списывает с баланса. Об изменении статуса заказа сообщает callback (webhook): адрес настраивается для ключа в panel/settings, подробности в разделе «Callback (webhook)».",
         "operationId": "createChatOrder",
         "parameters": [],
         "requestBody": {
@@ -362,7 +362,7 @@
     },
     "/orders/{id}": {
       "get": {
-        "description": "Возвращает заказ, оформленный владельцем ключа. Чужой или несуществующий заказ → 404.",
+        "description": "Свой заказ по id; чужой и несуществующий неразличимы (404). Статусы удобнее получать не опросом, а через callback: адрес настраивается для ключа в panel/settings (раздел «Callback (webhook)»).",
         "operationId": "getOrder",
         "parameters": [
           {
@@ -642,7 +642,11 @@
             "properties": {
               "channelUrl": {
                 "type": "string",
+<<<<<<< HEAD
                 "description": "Ссылка на канал/стрим (Comment: на канал запланированного поста)",
+=======
+                "description": "Канал в каноничном виде (для Comment — канал запланированного поста)",
+>>>>>>> docs/api-v1-actual-contract
                 "example": "https://twitch.tv/somechannel"
               },
               "startAt": {
@@ -726,7 +730,7 @@
           "channelUrl": {
             "type": "string",
             "minLength": 1,
-            "description": "Ссылка на канал/стрим",
+            "description": "Название канала или ссылка на канал выбранной площадки (не на видео и не на трансляцию). Сервер приводит значение к каноничной ссылке канала, например @MrBeast → https://youtube.com/@MrBeast",
             "example": "https://twitch.tv/somechannel",
             "maxLength": 300
           },
