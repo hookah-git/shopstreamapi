@@ -360,7 +360,7 @@
                     "value": {
                       "success": true,
                       "data": {
-                        "id": "6b1c7d2e-8a3f-4c55-b0a1-9d4e2f7a1c30",
+                        "id": "6b1c7d2e8a3f4c55b0a19d4e2f7a1c30",
                         "platform": "Telegram",
                         "type": "Comment",
                         "status": "InProgress",
@@ -380,7 +380,7 @@
                     "value": {
                       "success": true,
                       "data": {
-                        "id": "9e2a4c61-3b7d-4f08-a6c2-1d5b8e0f7a42",
+                        "id": "9e2a4c613b7d4f08a6c21d5b8e0f7a42",
                         "platform": "Telegram",
                         "type": "Comment",
                         "status": "InProgress",
@@ -480,8 +480,10 @@
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Идентификатор заказа: 32 шестнадцатеричных символа без тире (так он приходит в ответах). Принимается и вид с тире 8-4-4-4-12.",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "3f1a9c2e4b7d4a109c1e2b6f5a8d0e11"
             }
           }
         ],
@@ -528,7 +530,7 @@
                     "value": {
                       "success": true,
                       "data": {
-                        "id": "3f1a9c2e-4b7d-4a10-9c1e-2b6f5a8d0e11",
+                        "id": "3f1a9c2e4b7d4a109c1e2b6f5a8d0e11",
                         "platform": "Twitch",
                         "type": "Chat",
                         "status": "Searching",
@@ -551,7 +553,7 @@
                     "value": {
                       "success": true,
                       "data": {
-                        "id": "6b1c7d2e-8a3f-4c55-b0a1-9d4e2f7a1c30",
+                        "id": "6b1c7d2e8a3f4c55b0a19d4e2f7a1c30",
                         "platform": "Telegram",
                         "type": "Comment",
                         "status": "InProgress",
@@ -571,7 +573,7 @@
                     "value": {
                       "success": true,
                       "data": {
-                        "id": "9e2a4c61-3b7d-4f08-a6c2-1d5b8e0f7a42",
+                        "id": "9e2a4c613b7d4f08a6c21d5b8e0f7a42",
                         "platform": "Telegram",
                         "type": "Comment",
                         "status": "InProgress",
@@ -734,7 +736,7 @@
           "channelUrl": {
             "type": "string",
             "minLength": 1,
-            "description": "Название канала или ссылка на канал выбранной площадки. Для YouTube допускается и ссылка на видео или трансляцию (watch, live, shorts, youtu.be): канал определяется по автору видео. Сервер приводит значение к каноничной ссылке канала, например @MrBeast → https://youtube.com/@MrBeast",
+            "description": "Название канала или ссылка на канал выбранной площадки. Для YouTube принимаются все виды ссылок: @handle, /channel/UC…, /user/…, /c/…, старый вид youtube.com/<имя>, а также ссылка на видео или трансляцию (watch, live, shorts, youtu.be). Ссылка YouTube сохраняется в заказе без изменений; для остальных площадок значение приводится к каноничной ссылке канала, например somechannel → https://twitch.tv/somechannel",
             "example": "https://twitch.tv/somechannel",
             "maxLength": 300
           },
@@ -864,7 +866,7 @@
         "properties": {
           "channelUrl": {
             "type": "string",
-            "description": "Канал в каноничном виде",
+            "description": "Канал: у YouTube — ссылка ровно в том виде, в каком её передали; у остальных площадок — в каноничном виде",
             "example": "https://twitch.tv/somechannel"
           },
           "startAt": {
@@ -910,10 +912,9 @@
         "properties": {
           "id": {
             "type": "string",
-            "format": "uuid",
-            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-            "description": "Идентификатор заказа",
-            "example": "3f1a9c2e-4b7d-4a10-9c1e-2b6f5a8d0e11"
+            "pattern": "^[0-9a-fA-F]{32}$",
+            "description": "Идентификатор заказа: 32 шестнадцатеричных символа без тире",
+            "example": "3f1a9c2e4b7d4a109c1e2b6f5a8d0e11"
           },
           "platform": {
             "type": "string",
@@ -1010,10 +1011,9 @@
         "properties": {
           "id": {
             "type": "string",
-            "format": "uuid",
-            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-            "description": "Идентификатор заказа",
-            "example": "3f1a9c2e-4b7d-4a10-9c1e-2b6f5a8d0e11"
+            "pattern": "^[0-9a-fA-F]{32}$",
+            "description": "Идентификатор заказа: 32 шестнадцатеричных символа без тире",
+            "example": "3f1a9c2e4b7d4a109c1e2b6f5a8d0e11"
           },
           "platform": {
             "type": "string",
@@ -1076,10 +1076,9 @@
         "properties": {
           "id": {
             "type": "string",
-            "format": "uuid",
-            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-            "description": "Идентификатор заказа",
-            "example": "3f1a9c2e-4b7d-4a10-9c1e-2b6f5a8d0e11"
+            "pattern": "^[0-9a-fA-F]{32}$",
+            "description": "Идентификатор заказа: 32 шестнадцатеричных символа без тире",
+            "example": "3f1a9c2e4b7d4a109c1e2b6f5a8d0e11"
           },
           "platform": {
             "type": "string",

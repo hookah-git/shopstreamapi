@@ -116,7 +116,7 @@ x-api-key: <ключ>
   "type": "order.status_changed",
   "createdAt": "2026-07-01T18:00:00.000Z",
   "data": {
-    "orderId": "3f1a9c2e-4b7d-4a10-9c1e-2b6f5a8d0e11",
+    "orderId": "3f1a9c2e4b7d4a109c1e2b6f5a8d0e11",
     "status": "InProgress",
     "previousStatus": "Accepted",
     "order": { "...": "тот же объект, что возвращает GET /orders/{id}" }
@@ -189,38 +189,37 @@ x-api-key: <ключ>
 
 ### Поле `channelUrl` {#channel-url}
 
-Передавайте **название канала** или **ссылку на канал** выбранной площадки. Для YouTube можно также
-передать **ссылку на видео или трансляцию** — канал определится по её автору (см. ниже). Сервер
-приводит значение к каноничной ссылке канала (берёт ник из пути ссылки, хвост вроде `/live` или
-`/videos/…` отбрасывает), именно она сохраняется в заказе и возвращается в `params.channelUrl`.
+Передавайте **название канала** или **ссылку на канал** выбранной площадки.
+
+- **YouTube** — принимаются все виды ссылок, и в заказе сохраняется **ровно та ссылка, которую вы передали**
+  (без каких-либо изменений), она же возвращается в `params.channelUrl`.
+- **Остальные площадки** — сервер приводит значение к каноничной ссылке канала (берёт ник из пути ссылки,
+  хвост вроде `/videos/…` отбрасывает), именно она сохраняется в заказе.
 
 | Площадка | Принимается | Сохраняется как |
 |----------|-------------|-----------------|
 | Twitch | `somechannel`, `twitch.tv/somechannel` | `https://twitch.tv/somechannel` |
 | Kick | `somechannel`, `kick.com/somechannel` | `https://kick.com/somechannel` |
-| YouTube | `MrBeast`, `@MrBeast`, `https://www.youtube.com/@MrBeast`, `https://www.youtube.com/@MrBeast/live` | `https://youtube.com/@MrBeast` |
+| YouTube | ссылка любого вида из таблицы ниже | та же ссылка без изменений |
+| YouTube | ник `MrBeast` или `@MrBeast` (без ссылки) | `https://youtube.com/@MrBeast` |
 | Wtv | `somechannel`, `https://w.tv/somechannel` | `https://w.tv/somechannel` |
 | Vkplay | `somechannel`, `https://live.vkvideo.ru/somechannel`, `https://vkplay.live/somechannel` | `https://live.vkvideo.ru/somechannel` |
 
 Ссылка другой площадки или ник неподходящей длины → **400**.
 
-#### YouTube: ссылка на видео или трансляцию {#youtube-video}
+#### YouTube: поддерживаемые ссылки {#youtube-links}
 
-Ссылки на видео и трансляции YouTube принимаются: канал определяется автоматически по автору видео
-(это может занять несколько секунд), в заказ уходит ссылка на этот канал.
+Схема (`https://`) необязательна, `www.`, `m.` и `music.` допускаются, параметры (`?si=…`) и завершающий `/` не мешают.
 
-| Передали | Канал в заказе |
-|----------|----------------|
-| `https://www.youtube.com/watch?v=dQw4w9WgXcQ` | `https://www.youtube.com/@RickAstleyYT` |
-| `https://www.youtube.com/live/dQw4w9WgXcQ` | `https://www.youtube.com/@RickAstleyYT` |
-| `https://youtu.be/dQw4w9WgXcQ` | `https://www.youtube.com/@RickAstleyYT` |
-| `https://www.youtube.com/shorts/…`, `https://www.youtube.com/embed/…` | канал автора видео |
+| Вид | Пример |
+|-----|--------|
+| Хэндл | `https://www.youtube.com/@MrBeast`, `https://www.youtube.com/@MrBeast/live`, `…/@MrBeast/videos` |
+| Идентификатор канала | `https://www.youtube.com/channel/UCX6OQ3DkcsbYNE6H8uQQuVA` |
+| Пользователь (старый вид) | `https://www.youtube.com/user/PewDiePie` |
+| Пользовательский адрес | `https://www.youtube.com/c/SomeName`, `https://www.youtube.com/SomeName` |
+| Видео и трансляции | `https://www.youtube.com/watch?v=dQw4w9WgXcQ`, `https://www.youtube.com/live/dQw4w9WgXcQ`, `https://youtu.be/dQw4w9WgXcQ`, `…/shorts/…`, `…/embed/…` |
 
-Если видео не найдено или канал определить не удалось (например, у канала нет `@handle`) — **400** с
-пояснением; передайте ссылку на канал (`https://www.youtube.com/@handle`).
-
-Ссылки вида `https://www.youtube.com/channel/UC…`, `/user/…` и `/c/…` **не поддерживаются** (канал по
-ним не определяется): используйте `@handle`.
+Если ссылка не распознана (например, плейлист или результаты поиска) — **400**.
 
 <OAOperation operationId="createChatOrder" />
 
