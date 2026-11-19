@@ -100,7 +100,7 @@ type CreateCommentOrderInput struct {
 // опциональных полей, чтобы не слать пустые значения (omitempty).
 type CreateChatOrderInput struct {
 	Platform        Platform `json:"platform"`
-	ChannelURL      string   `json:"channelUrl"`      // название канала или ссылка на канал (у YouTube — и на видео/трансляцию)
+	ChannelURL      string   `json:"channelUrl"`      // название канала или ссылка на канал (у YouTube — любые ссылки, в том числе на видео/трансляцию, сохраняются без изменений)
 	StartAt         string   `json:"startAt"`         // ISO 8601 с зоной: Z или смещение (+03:00)
 	DurationMinutes int      `json:"durationMinutes"` // 1..1440
 	Language        *string  `json:"language,omitempty"`
