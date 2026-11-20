@@ -76,6 +76,19 @@ final class Client
         return PublicOrder::fromArray($this->request('POST', '/orders/comments', $body));
     }
 
+    /**
+     * POST /orders/slay — создать заказ «Премия SLAY»: выбор номинации, участника и кол-ва голосов.
+     * Сумму считает сервер по тарифу.
+     *
+     * @param CreateSlayOrderInput|array<string,mixed> $order
+     */
+    public function createSlayOrder(CreateSlayOrderInput|array $order): PublicOrder
+    {
+        $body = $order instanceof CreateSlayOrderInput ? $order->toArray() : $order;
+
+        return PublicOrder::fromArray($this->request('POST', '/orders/slay', $body));
+    }
+
     /** GET /orders/{id} — получить свой заказ по id. */
     public function getOrder(string $id): PublicOrder
     {

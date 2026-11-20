@@ -93,6 +93,16 @@ func (c *Client) CreateCommentOrder(ctx context.Context, in CreateCommentOrderIn
 	return &out, nil
 }
 
+// CreateSlayOrder — POST /orders/slay: заказ «Премия SLAY», выбор номинации,
+// участника и количества голосов. Сумму считает сервер.
+func (c *Client) CreateSlayOrder(ctx context.Context, in CreateSlayOrderInput) (*PublicOrder, error) {
+	var out PublicOrder
+	if err := c.do(ctx, http.MethodPost, "/orders/slay", in, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 // CreateChatOrder — POST /orders. Сумму считает сервер.
 func (c *Client) CreateChatOrder(ctx context.Context, in CreateChatOrderInput) (*PublicOrder, error) {
 	var out PublicOrder

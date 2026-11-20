@@ -34,6 +34,7 @@ export default defineConfig({
           { text: 'GET · Баланс', link: '/#op-getBalance' },
           { text: 'POST · Заказ «Живой чат»', link: '/#op-createChatOrder' },
           { text: 'POST · Заказ «Комментарии»', link: '/#op-createCommentOrder' },
+          { text: 'POST · Заказ «Премия SLAY»', link: '/#op-createSlayOrder' },
           { text: 'GET · Заказ по id', link: '/#op-getOrder' },
         ],
       },

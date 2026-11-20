@@ -21,7 +21,10 @@
                       "$ref": "#/components/schemas/PublicServiceListDto"
                     }
                   },
-                  "required": ["success", "data"]
+                  "required": [
+                    "success",
+                    "data"
+                  ]
                 },
                 "examples": {
                   "chatAndComments": {
@@ -65,6 +68,29 @@
                                 "quantity": 5,
                                 "durationHours": 720,
                                 "price": 900
+                              }
+                            ]
+                          },
+                          {
+                            "id": 15,
+                            "platform": "Slay",
+                            "type": "Slay",
+                            "cost": {
+                              "price": 1.5
+                            },
+                            "minVotes": 10,
+                            "maxVotes": 100000,
+                            "endsAt": "2026-12-01T23:59:59Z",
+                            "nominations": [
+                              {
+                                "id": "slay-king",
+                                "title": "SLAY KING",
+                                "category": "streamers",
+                                "contenders": [
+                                  "Bratishkin",
+                                  "Deepins",
+                                  "Zubarefff"
+                                ]
                               }
                             ]
                           }
@@ -123,7 +149,9 @@
           }
         ],
         "summary": "Список доступных услуг",
-        "tags": ["Public API"]
+        "tags": [
+          "Public API"
+        ]
       }
     },
     "/balance": {
@@ -146,7 +174,10 @@
                       "$ref": "#/components/schemas/PublicBalanceDto"
                     }
                   },
-                  "required": ["success", "data"]
+                  "required": [
+                    "success",
+                    "data"
+                  ]
                 }
               }
             }
@@ -198,7 +229,9 @@
           }
         ],
         "summary": "Баланс владельца ключа",
-        "tags": ["Public API"]
+        "tags": [
+          "Public API"
+        ]
       }
     },
     "/orders": {
@@ -231,7 +264,10 @@
                       "$ref": "#/components/schemas/PublicChatOrderDto"
                     }
                   },
-                  "required": ["success", "data"]
+                  "required": [
+                    "success",
+                    "data"
+                  ]
                 }
               }
             }
@@ -303,7 +339,9 @@
           }
         ],
         "summary": "Создать заказ «Живой чат»",
-        "tags": ["Public API"]
+        "tags": [
+          "Public API"
+        ]
       }
     },
     "/orders/comments": {
@@ -352,7 +390,10 @@
                       "$ref": "#/components/schemas/PublicCommentOrderDto"
                     }
                   },
-                  "required": ["success", "data"]
+                  "required": [
+                    "success",
+                    "data"
+                  ]
                 },
                 "examples": {
                   "postPublished": {
@@ -467,8 +508,114 @@
           }
         ],
         "summary": "Создать заказ «Комментарии» (Telegram)",
-        "tags": ["Public API"],
+        "tags": [
+          "Public API"
+        ],
         "description": "Заказ комментариев под постом в Telegram. Сумму считает сервер по цене поста и скидкам владельца ключа. Об изменении статуса заказа сообщает callback (webhook): адрес настраивается для ключа в panel/settings, подробности в разделе «Callback (webhook)»."
+      }
+    },
+    "/orders/slay": {
+      "post": {
+        "operationId": "createSlayOrder",
+        "summary": "Создать заказ «Премия SLAY»",
+        "description": "Заказ накрутки голосов в номинациях «Премия SLAY». Сумму считает сервер по тарифу и скидкам владельца ключа и списывает с баланса. Об изменении статуса заказа сообщает callback (webhook): адрес настраивается для ключа в panel/settings, подробности в разделе «Callback (webhook)».",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicCreateSlayOrderDto"
+              },
+              "examples": {
+                "withContender": {
+                  "summary": "С выбором участника",
+                  "value": {
+                    "nominationId": "slay-king",
+                    "contender": "Bratishkin",
+                    "votes": 100
+                  }
+                },
+                "withoutContender": {
+                  "summary": "Без выбора участника (только номинация)",
+                  "value": {
+                    "nominationId": "stream-of-year",
+                    "votes": 50
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PublicSlayOrderDto"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data"
+                  ]
+                },
+                "examples": {
+                  "slay": {
+                    "summary": "Заказ «Премия SLAY»",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "id": "7c2a1b4e9d3f4a108b2e1c6f5a7d0e33",
+                        "platform": "Slay",
+                        "type": "Slay",
+                        "status": "Searching",
+                        "params": {
+                          "nominationId": "slay-king",
+                          "nominationTitle": "SLAY KING",
+                          "category": "streamers",
+                          "contender": "Bratishkin",
+                          "votes": 100
+                        },
+                        "amount": "150.00",
+                        "createdAt": "2026-11-20T12:00:00.000Z",
+                        "updatedAt": "2026-11-20T12:00:00.000Z"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          }
+        },
+        "tags": [
+          "Public API"
+        ]
       }
     },
     "/orders/{id}": {
@@ -508,6 +655,9 @@
                         },
                         {
                           "$ref": "#/components/schemas/PublicOtherOrderDto"
+                        },
+                        {
+                          "$ref": "#/components/schemas/PublicSlayOrderDto"
                         }
                       ],
                       "discriminator": {
@@ -517,12 +667,16 @@
                           "Comment": "#/components/schemas/PublicCommentOrderDto",
                           "Follow": "#/components/schemas/PublicOtherOrderDto",
                           "Viewer": "#/components/schemas/PublicOtherOrderDto",
-                          "View": "#/components/schemas/PublicOtherOrderDto"
+                          "View": "#/components/schemas/PublicOtherOrderDto",
+                          "Slay": "#/components/schemas/PublicSlayOrderDto"
                         }
                       }
                     }
                   },
-                  "required": ["success", "data"]
+                  "required": [
+                    "success",
+                    "data"
+                  ]
                 },
                 "examples": {
                   "chat": {
@@ -586,6 +740,28 @@
                         "amount": "30.00",
                         "createdAt": "2026-06-23T12:34:56.000Z",
                         "updatedAt": "2026-06-23T12:34:56.000Z"
+                      }
+                    }
+                  },
+                  "slay": {
+                    "summary": "Заказ «Премия SLAY»",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "id": "7c2a1b4e9d3f4a108b2e1c6f5a7d0e33",
+                        "platform": "Slay",
+                        "type": "Slay",
+                        "status": "Searching",
+                        "params": {
+                          "nominationId": "slay-king",
+                          "nominationTitle": "SLAY KING",
+                          "category": "streamers",
+                          "contender": "Bratishkin",
+                          "votes": 100
+                        },
+                        "amount": "150.00",
+                        "createdAt": "2026-11-20T12:00:00.000Z",
+                        "updatedAt": "2026-11-20T12:00:00.000Z"
                       }
                     }
                   }
@@ -660,7 +836,9 @@
           }
         ],
         "summary": "Получить свой заказ по id",
-        "tags": ["Public API"]
+        "tags": [
+          "Public API"
+        ]
       }
     }
   },
@@ -691,7 +869,7 @@
         "properties": {
           "services": {
             "type": "array",
-            "description": "Услуги, доступные владельцу ключа. Форма элемента зависит от type: Chat — с levels, Comment — с subscriptions",
+            "description": "Услуги, доступные владельцу ключа. Форма элемента зависит от type: Chat — с levels, Comment — с subscriptions, Slay — с nominations",
             "items": {
               "oneOf": [
                 {
@@ -699,19 +877,25 @@
                 },
                 {
                   "$ref": "#/components/schemas/PublicCommentServiceDto"
+                },
+                {
+                  "$ref": "#/components/schemas/PublicSlayServiceDto"
                 }
               ],
               "discriminator": {
                 "propertyName": "type",
                 "mapping": {
                   "Chat": "#/components/schemas/PublicChatServiceDto",
-                  "Comment": "#/components/schemas/PublicCommentServiceDto"
+                  "Comment": "#/components/schemas/PublicCommentServiceDto",
+                  "Slay": "#/components/schemas/PublicSlayServiceDto"
                 }
               }
             }
           }
         },
-        "required": ["services"]
+        "required": [
+          "services"
+        ]
       },
       "PublicBalanceDto": {
         "type": "object",
@@ -722,14 +906,22 @@
             "example": "1530.50"
           }
         },
-        "required": ["balance"]
+        "required": [
+          "balance"
+        ]
       },
       "PublicCreateChatOrderDto": {
         "type": "object",
         "properties": {
           "platform": {
             "type": "string",
-            "enum": ["Twitch", "Kick", "Youtube", "Wtv", "Vkplay"],
+            "enum": [
+              "Twitch",
+              "Kick",
+              "Youtube",
+              "Wtv",
+              "Vkplay"
+            ],
             "description": "Площадка стрима",
             "example": "Twitch"
           },
@@ -760,15 +952,21 @@
             "anyOf": [
               {
                 "type": "number",
-                "enum": [1]
+                "enum": [
+                  1
+                ]
               },
               {
                 "type": "number",
-                "enum": [2]
+                "enum": [
+                  2
+                ]
               },
               {
                 "type": "number",
-                "enum": [3]
+                "enum": [
+                  3
+                ]
               }
             ]
           },
@@ -785,7 +983,12 @@
             "maxLength": 500
           }
         },
-        "required": ["platform", "channelUrl", "startAt", "durationMinutes"]
+        "required": [
+          "platform",
+          "channelUrl",
+          "startAt",
+          "durationMinutes"
+        ]
       },
       "PublicErrorDto": {
         "type": "object",
@@ -826,7 +1029,13 @@
             }
           }
         },
-        "required": ["error", "url", "statusCode", "statusMessage", "message"]
+        "required": [
+          "error",
+          "url",
+          "statusCode",
+          "statusMessage",
+          "message"
+        ]
       },
       "PublicCreateCommentOrderDto": {
         "type": "object",
@@ -893,7 +1102,11 @@
           },
           "level": {
             "type": "integer",
-            "enum": [1, 2, 3],
+            "enum": [
+              1,
+              2,
+              3
+            ],
             "description": "Уровень заказа (1, 2 или 3)",
             "example": 1
           }
@@ -918,12 +1131,20 @@
           },
           "platform": {
             "type": "string",
-            "enum": ["Twitch", "Kick", "Youtube", "Wtv", "Vkplay"],
+            "enum": [
+              "Twitch",
+              "Kick",
+              "Youtube",
+              "Wtv",
+              "Vkplay"
+            ],
             "example": "Twitch"
           },
           "type": {
             "type": "string",
-            "enum": ["Chat"],
+            "enum": [
+              "Chat"
+            ],
             "description": "Тип заказа",
             "example": "Chat"
           },
@@ -1004,7 +1225,10 @@
             "example": "Поддержка поста"
           }
         },
-        "required": ["alreadyPublished", "comment"]
+        "required": [
+          "alreadyPublished",
+          "comment"
+        ]
       },
       "PublicCommentOrderDto": {
         "type": "object",
@@ -1017,12 +1241,16 @@
           },
           "platform": {
             "type": "string",
-            "enum": ["Telegram"],
+            "enum": [
+              "Telegram"
+            ],
             "example": "Telegram"
           },
           "type": {
             "type": "string",
-            "enum": ["Comment"],
+            "enum": [
+              "Comment"
+            ],
             "description": "Тип заказа",
             "example": "Comment"
           },
@@ -1082,12 +1310,24 @@
           },
           "platform": {
             "type": "string",
-            "enum": ["Twitch", "Kick", "Youtube", "Wtv", "Vkplay", "Telegram"],
+            "enum": [
+              "Twitch",
+              "Kick",
+              "Youtube",
+              "Wtv",
+              "Vkplay",
+              "Telegram",
+              "Slay"
+            ],
             "example": "Twitch"
           },
           "type": {
             "type": "string",
-            "enum": ["Follow", "Viewer", "View"],
+            "enum": [
+              "Follow",
+              "Viewer",
+              "View"
+            ],
             "description": "Тип заказа",
             "example": "Viewer"
           },
@@ -1150,13 +1390,21 @@
           },
           "platform": {
             "type": "string",
-            "enum": ["Twitch", "Kick", "Youtube", "Wtv", "Vkplay"],
+            "enum": [
+              "Twitch",
+              "Kick",
+              "Youtube",
+              "Wtv",
+              "Vkplay"
+            ],
             "description": "Площадка",
             "example": "Twitch"
           },
           "type": {
             "type": "string",
-            "enum": ["Chat"],
+            "enum": [
+              "Chat"
+            ],
             "example": "Chat"
           },
           "cost": {
@@ -1168,7 +1416,9 @@
                 "example": 56
               }
             },
-            "required": ["price"]
+            "required": [
+              "price"
+            ]
           },
           "levels": {
             "type": "array",
@@ -1178,7 +1428,11 @@
               "properties": {
                 "level": {
                   "type": "integer",
-                  "enum": [1, 2, 3],
+                  "enum": [
+                    1,
+                    2,
+                    3
+                  ],
                   "example": 2
                 },
                 "surcharge": {
@@ -1187,11 +1441,20 @@
                   "example": 50
                 }
               },
-              "required": ["level", "surcharge"]
+              "required": [
+                "level",
+                "surcharge"
+              ]
             }
           }
         },
-        "required": ["id", "platform", "type", "cost", "levels"]
+        "required": [
+          "id",
+          "platform",
+          "type",
+          "cost",
+          "levels"
+        ]
       },
       "PublicCommentServiceDto": {
         "type": "object",
@@ -1204,13 +1467,17 @@
           },
           "platform": {
             "type": "string",
-            "enum": ["Telegram"],
+            "enum": [
+              "Telegram"
+            ],
             "description": "Площадка",
             "example": "Telegram"
           },
           "type": {
             "type": "string",
-            "enum": ["Comment"],
+            "enum": [
+              "Comment"
+            ],
             "example": "Comment"
           },
           "cost": {
@@ -1222,7 +1489,9 @@
                 "example": 30
               }
             },
-            "required": ["price"]
+            "required": [
+              "price"
+            ]
           },
           "subscriptions": {
             "type": "array",
@@ -1251,11 +1520,285 @@
                   "example": 900
                 }
               },
-              "required": ["id", "quantity", "durationHours", "price"]
+              "required": [
+                "id",
+                "quantity",
+                "durationHours",
+                "price"
+              ]
             }
           }
         },
-        "required": ["id", "platform", "type", "cost", "subscriptions"]
+        "required": [
+          "id",
+          "platform",
+          "type",
+          "cost",
+          "subscriptions"
+        ]
+      },
+      "PublicCreateSlayOrderDto": {
+        "type": "object",
+        "description": "Заказ «Премия SLAY»: выбор номинации, участника и количества голосов",
+        "properties": {
+          "nominationId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "description": "Идентификатор номинации из каталога услуг GET /services",
+            "example": "slay-king"
+          },
+          "contender": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "Имя участника номинации. Обязателен, если у номинации задан непустой список contenders в GET /services",
+            "example": "Bratishkin"
+          },
+          "votes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100000,
+            "description": "Количество голосов",
+            "example": 100
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "streamers",
+              "nominations"
+            ],
+            "description": "Категория номинации (streamers или nominations). Необязательно: если не указано, сервер определяет автоматически по nominationId",
+            "example": "streamers"
+          }
+        },
+        "required": [
+          "nominationId",
+          "votes"
+        ]
+      },
+      "PublicSlayOrderParamsDto": {
+        "type": "object",
+        "description": "Параметры заказа «Премия SLAY»",
+        "properties": {
+          "nominationId": {
+            "type": "string",
+            "description": "Идентификатор номинации",
+            "example": "slay-king"
+          },
+          "nominationTitle": {
+            "type": "string",
+            "description": "Название номинации",
+            "example": "SLAY KING"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "streamers",
+              "nominations"
+            ],
+            "description": "Категория номинации",
+            "example": "streamers"
+          },
+          "contender": {
+            "type": "string",
+            "description": "Выбранный участник",
+            "example": "Bratishkin"
+          },
+          "votes": {
+            "type": "integer",
+            "description": "Количество голосов",
+            "example": 100
+          }
+        },
+        "required": [
+          "nominationId",
+          "votes"
+        ]
+      },
+      "PublicSlayOrderDto": {
+        "type": "object",
+        "description": "Заказ «Премия SLAY»",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{32}$",
+            "description": "Идентификатор заказа: 32 шестнадцатеричных символа без тире",
+            "example": "7c2a1b4e9d3f4a108b2e1c6f5a7d0e33"
+          },
+          "platform": {
+            "type": "string",
+            "enum": [
+              "Slay"
+            ],
+            "example": "Slay"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "Slay"
+            ],
+            "example": "Slay"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Searching",
+              "Accepted",
+              "InProgress",
+              "Paused",
+              "Cancelled",
+              "Completed"
+            ],
+            "description": "Текущий статус заказа",
+            "example": "Searching"
+          },
+          "params": {
+            "$ref": "#/components/schemas/PublicSlayOrderParamsDto"
+          },
+          "amount": {
+            "type": "string",
+            "description": "Списанная сумма (строка-Decimal, рубли)",
+            "example": "150.00"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+            "example": "2026-11-20T12:00:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+            "example": "2026-11-20T12:00:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "platform",
+          "type",
+          "status",
+          "params",
+          "amount",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "PublicSlayNominationDto": {
+        "type": "object",
+        "description": "Номинация «Премия SLAY»",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Идентификатор номинации",
+            "example": "slay-king"
+          },
+          "title": {
+            "type": "string",
+            "description": "Название номинации",
+            "example": "SLAY KING"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "streamers",
+              "nominations"
+            ],
+            "description": "Категория",
+            "example": "streamers"
+          },
+          "contenders": {
+            "type": "array",
+            "description": "Список участников (претендентов) номинации",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "Bratishkin",
+              "Deepins",
+              "Zubarefff"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "category",
+          "contenders"
+        ]
+      },
+      "PublicSlayServiceDto": {
+        "type": "object",
+        "description": "Услуга «Премия SLAY»",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Идентификатор услуги",
+            "example": 15
+          },
+          "platform": {
+            "type": "string",
+            "enum": [
+              "Slay"
+            ],
+            "description": "Площадка",
+            "example": "Slay"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "Slay"
+            ],
+            "example": "Slay"
+          },
+          "cost": {
+            "type": "object",
+            "properties": {
+              "price": {
+                "type": "number",
+                "description": "Цена одного голоса со всеми скидками владельца ключа, рубли",
+                "example": 1.5
+              }
+            },
+            "required": [
+              "price"
+            ]
+          },
+          "minVotes": {
+            "type": "integer",
+            "description": "Минимальное количество голосов для одного заказа",
+            "example": 10
+          },
+          "maxVotes": {
+            "type": "integer",
+            "description": "Максимальное количество голосов для одного заказа",
+            "example": 100000
+          },
+          "endsAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Дата и время окончания голосования (ISO 8601)",
+            "example": "2026-12-01T23:59:59Z"
+          },
+          "nominations": {
+            "type": "array",
+            "description": "Список доступных номинаций с участниками",
+            "items": {
+              "$ref": "#/components/schemas/PublicSlayNominationDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "platform",
+          "type",
+          "cost",
+          "minVotes",
+          "maxVotes",
+          "endsAt",
+          "nominations"
+        ]
       }
     }
   }

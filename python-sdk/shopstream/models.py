@@ -16,15 +16,17 @@ class Platform(str, Enum):
     WTV = "Wtv"
     VKPLAY = "Vkplay"
     TELEGRAM = "Telegram"
+    SLAY = "Slay"
 
 
 class ServiceType(str, Enum):
-    """Типы услуг. В публичном POST /orders доступен только ``Chat``."""
+    """Типы услуг."""
 
     FOLLOW = "Follow"
     CHAT = "Chat"
     VIEWER = "Viewer"
     COMMENT = "Comment"
+    SLAY = "Slay"
 
 
 class OrderStatus(str, Enum):
@@ -97,6 +99,31 @@ class CreateCommentOrderInput:
 
 
 @dataclass
+class CreateSlayOrderInput:
+    """Тело ``POST /orders/slay`` — заказ «Премия SLAY».
+
+    Выбор номинации, участника (если у номинации есть претенденты) и количества голосов.
+    Сумму считает сервер по тарифу.
+    """
+
+    nomination_id: str
+    votes: int
+    contender: Optional[str] = None
+    category: Optional[str] = None  # "streamers" или "nominations"
+
+    def to_dict(self) -> Dict[str, Any]:
+        body: Dict[str, Any] = {
+            "nominationId": self.nomination_id,
+            "votes": self.votes,
+        }
+        if self.contender is not None:
+            body["contender"] = self.contender
+        if self.category is not None:
+            body["category"] = self.category
+        return body
+
+
+@dataclass
 class PublicService:
     """Одна услуга из каталога."""
 
@@ -111,6 +138,14 @@ class PublicService:
     #: Только у ``Comment``: цены подписок (только для вывода, оформить через API нельзя):
     #: ``[{"id": 1, "quantity": 5, "durationHours": 720, "price": 900}, ...]``.
     subscriptions: List[Dict[str, Any]] = field(default_factory=list)
+    #: Только у ``Slay``: минимальное количество голосов.
+    min_votes: Optional[int] = None
+    #: Только у ``Slay``: максимальное количество голосов.
+    max_votes: Optional[int] = None
+    #: Только у ``Slay``: дата окончания голосования (ISO 8601).
+    ends_at: Optional[str] = None
+    #: Только у ``Slay``: список доступных номинаций с участниками.
+    nominations: List[Dict[str, Any]] = field(default_factory=list)
 
     @classmethod
     def from_dict(cls, d: Dict[str, Any]) -> "PublicService":
@@ -121,6 +156,10 @@ class PublicService:
             cost=d.get("cost", {}),
             levels=d.get("levels", []),
             subscriptions=d.get("subscriptions", []),
+            min_votes=d.get("minVotes"),
+            max_votes=d.get("maxVotes"),
+            ends_at=d.get("endsAt"),
+            nominations=d.get("nominations", []),
         )
 
 

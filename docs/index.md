@@ -24,7 +24,7 @@ function responsesOf(operationId) {
 
 # StreamShop Public API {#top}
 
-Публичный API для внешних клиентов: каталог услуг, баланс и заказы «Живой чат» и «Комментарии» (Telegram).
+Публичный API для внешних клиентов: каталог услуг, баланс и заказы «Живой чат», «Комментарии» (Telegram) и «Премия SLAY».
 Аутентификация по заголовку `x-api-key`, успешные ответы — в конверте `{ success, data }`.
 Об изменении статуса заказа сообщает [callback (webhook)](#webhooks): адрес для ключа настраивается
 в панели (`panel/settings`).
@@ -135,9 +135,9 @@ x-api-key: <ключ>
 
 ## Перечисления {#enums}
 
-- **Platform:** `Twitch` · `Kick` · `Youtube` · `Wtv` · `Vkplay` · `Telegram` — `Telegram` только у услуги `Comment`
-- **ServiceType:** `Follow` · `Chat` · `Viewer` · `Comment` · `View` — в `GET /services` и при создании заказов доступны
-  `Chat` (`POST /orders`) и `Comment` (`POST /orders/comments`)
+- **Platform:** `Twitch` · `Kick` · `Youtube` · `Wtv` · `Vkplay` · `Telegram` · `Slay` — `Telegram` у услуги `Comment`, `Slay` у услуги `Slay`
+- **ServiceType:** `Follow` · `Chat` · `Viewer` · `Comment` · `View` · `Slay` — в `GET /services` и при создании заказов доступны
+  `Chat` (`POST /orders`), `Comment` (`POST /orders/comments`) и `Slay` (`POST /orders/slay`)
 - **OrderStatus:** `Searching` · `Accepted` · `InProgress` · `Paused` · `Cancelled` · `Completed`
 
 <div class="op-card op-grid">
@@ -267,6 +267,33 @@ API нельзя: цены подписок отдаются только для
 <div class="op-card op-grid">
 <div class="op-col">
 
+## Создать заказ «Премия SLAY» {#op-createSlayOrder}
+
+Заказ накрутки голосов в номинациях «Премия SLAY». Выберите номинацию (`nominationId`), участника (`contender` — обязателен, если для выбранной номинации в каталоге задан список претендентов) и количество голосов (`votes` в пределах `minVotes`..`maxVotes`). Категорию (`category`: `streamers` или `nominations`) указывать необязательно — сервер определяет её автоматически по номинации.
+
+Тариф за 1 голос, лимиты голосов, дата окончания голосования и список доступных номинаций с участниками отдаются в `GET /services` (услуга `Slay` / `Slay`). Сумму рассчитывает сервер по тарифу и скидкам владельца ключа и списывает с баланса.
+
+Статусы заказа приходят на [callback (webhook)](#webhooks), адрес которого настраивается для ключа в `panel/settings`.
+
+<OAOperation operationId="createSlayOrder" />
+
+</div>
+<div class="op-col">
+<ClientOnly>
+<OAOperationContext operationId="createSlayOrder" :openapi="openapi">
+
+<OAResponses operationId="createSlayOrder" :responses="responsesOf('createSlayOrder')" />
+
+<OACodeSamples operationId="createSlayOrder" />
+
+</OAOperationContext>
+</ClientOnly>
+</div>
+</div>
+
+<div class="op-card op-grid">
+<div class="op-col">
+
 ## Получить заказ по id {#op-getOrder}
 
 <OAOperation operationId="getOrder" />
@@ -316,10 +343,17 @@ const fetched = await client.getOrder(order.id);
 const commentOrder = await client.createCommentOrder({
   postUrl: 'https://t.me/channel/123',
 });
+
+// Премия SLAY: выбор номинации, участника и количества голосов
+const slayOrder = await client.createSlayOrder({
+  nominationId: 'slay-king',
+  contender: 'Bratishkin',
+  votes: 100,
+});
 ```
 
 ```python [Python]
-from shopstream import ShopStreamClient, CreateChatOrderInput, CreateCommentOrderInput, Platform
+from shopstream import ShopStreamClient, CreateChatOrderInput, CreateCommentOrderInput, CreateSlayOrderInput, Platform
 
 client = ShopStreamClient(
     api_key="sk_live_...",
@@ -344,12 +378,18 @@ fetched = client.get_order(order.id)
 comment_order = client.create_comment_order(
     CreateCommentOrderInput(post_url="https://t.me/channel/123")
 )
+
+# Премия SLAY: выбор номинации, участника и количества голосов
+slay_order = client.create_slay_order(
+    CreateSlayOrderInput(nomination_id="slay-king", contender="Bratishkin", votes=100)
+)
 ```
 
 ```php [PHP]
 use ShopStream\Client;
 use ShopStream\CreateChatOrderInput;
 use ShopStream\CreateCommentOrderInput;
+use ShopStream\CreateSlayOrderInput;
 use ShopStream\Enums\Platform;
 
 $client = new Client('sk_live_...', 'https://shop-stream.ru/api/v1');
@@ -369,6 +409,13 @@ $fetched = $client->getOrder($order->id);
 // Комментарии (Telegram): пост уже вышел
 $commentOrder = $client->createCommentOrder(new CreateCommentOrderInput(
     postUrl: 'https://t.me/channel/123',
+));
+
+// Премия SLAY: выбор номинации, участника и количества голосов
+$slayOrder = $client->createSlayOrder(new CreateSlayOrderInput(
+    nominationId: 'slay-king',
+    votes: 100,
+    contender: 'Bratishkin',
 ));
 ```
 
@@ -396,6 +443,14 @@ fetched, _ := client.GetOrder(ctx, order.ID)
 // Комментарии (Telegram): пост уже вышел
 postURL := "https://t.me/channel/123"
 commentOrder, _ := client.CreateCommentOrder(ctx, shopstream.CreateCommentOrderInput{PostURL: &postURL})
+
+// Премия SLAY: выбор номинации, участника и количества голосов
+contender := "Bratishkin"
+slayOrder, _ := client.CreateSlayOrder(ctx, shopstream.CreateSlayOrderInput{
+    NominationID: "slay-king",
+    Contender:    &contender,
+    Votes:        100,
+})
 ```
 
 :::
@@ -406,6 +461,7 @@ commentOrder, _ := client.CreateCommentOrder(ctx, shopstream.CreateCommentOrderI
 | `getBalance()` | `GET /balance` |
 | `createChatOrder(...)` | `POST /orders` |
 | `createCommentOrder(...)` | `POST /orders/comments` |
+| `createSlayOrder(...)` | `POST /orders/slay` |
 | `getOrder(id)` | `GET /orders/{id}` |
 
 Полные README — в `javascript-sdk/`, `python-sdk/`, `php-sdk/`, `go-sdk/`.
