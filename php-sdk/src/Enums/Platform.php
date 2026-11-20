@@ -13,4 +13,5 @@ enum Platform: string
     case Wtv = 'Wtv';
     case Vkplay = 'Vkplay';
     case Telegram = 'Telegram';
+    case Slay = 'Slay';
 }

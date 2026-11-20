@@ -5,10 +5,11 @@ export type Platform =
   | 'Youtube'
   | 'Wtv'
   | 'Vkplay'
-  | 'Telegram';
+  | 'Telegram'
+  | 'Slay';
 
-/** Типы услуг. Заказы через API: `Chat` (`POST /orders`) и `Comment` (`POST /orders/comments`). */
-export type ServiceType = 'Follow' | 'Chat' | 'Viewer' | 'Comment' | 'View';
+/** Типы услуг. Заказы через API: `Chat` (`POST /orders`), `Comment` (`POST /orders/comments`) и `Slay` (`POST /orders/slay`). */
+export type ServiceType = 'Follow' | 'Chat' | 'Viewer' | 'Comment' | 'View' | 'Slay';
 
 /** Статусы заказа. */
 export type OrderStatus =
@@ -34,6 +35,22 @@ export interface PublicService {
   levels?: ServiceLevel[];
   /** Только у `Comment`: цены подписок (только для вывода, оформить подписку через API нельзя). */
   subscriptions?: CommentSubscription[];
+  /** Только у `Slay`: минимальное количество голосов. */
+  minVotes?: number;
+  /** Только у `Slay`: максимальное количество голосов. */
+  maxVotes?: number;
+  /** Только у `Slay`: дата окончания голосования (ISO 8601). */
+  endsAt?: string;
+  /** Только у `Slay`: список доступных номинаций. */
+  nominations?: PublicSlayNomination[];
+}
+
+/** Номинация премии SLAY из каталога. */
+export interface PublicSlayNomination {
+  id: string;
+  title: string;
+  category: 'streamers' | 'nominations';
+  contenders: string[];
 }
 
 /** Подписка на комментарии из каталога. */
@@ -72,8 +89,8 @@ export interface PublicOrder {
   platform: Platform;
   type: ServiceType;
   status: OrderStatus;
-  /** Для `Chat` — {@link ChatOrderParams}, для `Comment` — {@link CommentOrderParams}, для остальных — как сохранены в заказе. */
-  params: ChatOrderParams | CommentOrderParams | Record<string, unknown>;
+  /** Для `Chat` — {@link ChatOrderParams}, для `Comment` — {@link CommentOrderParams}, для `Slay` — {@link SlayOrderParams}, для остальных — как сохранены в заказе. */
+  params: ChatOrderParams | CommentOrderParams | SlayOrderParams | Record<string, unknown>;
   /** Списанная сумма (строка-Decimal). */
   amount: string;
   /** ISO 8601, UTC. */
@@ -92,6 +109,15 @@ export interface CommentOrderParams {
   /** ISO 8601 (UTC) для запланированного поста; `null`, если не удалось восстановить. */
   startAt?: string | null;
   comment: string;
+}
+
+/** Параметры заказа «Премия SLAY» в ответе: та же форма, что принимает `POST /orders/slay`. */
+export interface SlayOrderParams {
+  nominationId: string;
+  nominationTitle?: string;
+  category?: 'streamers' | 'nominations';
+  contender?: string;
+  votes: number;
 }
 
 /** Параметры заказа «Живой чат» в ответе: та же форма, что принимает `POST /orders`. */
@@ -143,6 +169,21 @@ export type CreateCommentOrderInput =
       comment?: string;
       postUrl?: never;
     };
+
+/**
+ * Тело `POST /orders/slay` — заказ «Премия SLAY».
+ * Выбор номинации, участника (если у номинации есть претенденты) и количества голосов.
+ */
+export interface CreateSlayOrderInput {
+  /** Идентификатор номинации из `GET /services`. */
+  nominationId: string;
+  /** Участник (если у номинации задан непустой список претендентов). */
+  contender?: string;
+  /** Количество голосов (в пределах `minVotes`..`maxVotes`). */
+  votes: number;
+  /** Категория (`streamers` или `nominations`). Если не указана, сервер определит автоматически. */
+  category?: 'streamers' | 'nominations';
+}
 
 /** Конверт успешного ответа. */
 export interface ApiEnvelope<T> {

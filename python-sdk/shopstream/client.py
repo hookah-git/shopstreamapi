@@ -12,6 +12,7 @@ from .errors import ShopStreamApiError
 from .models import (
     CreateChatOrderInput,
     CreateCommentOrderInput,
+    CreateSlayOrderInput,
     PublicBalance,
     PublicOrder,
     PublicServiceList,
@@ -79,6 +80,18 @@ class ShopStreamClient:
         """
         body = order.to_dict() if isinstance(order, CreateCommentOrderInput) else dict(order)
         return PublicOrder.from_dict(self._request("POST", "/orders/comments", body))
+
+    def create_slay_order(
+        self,
+        order: Union["CreateSlayOrderInput", Dict[str, Any]],
+    ) -> PublicOrder:
+        """``POST /orders/slay`` — создать заказ «Премия SLAY».
+
+        Выбор номинации, участника и количества голосов. Принимает
+        :class:`CreateSlayOrderInput` или ``dict`` с теми же ключами API.
+        """
+        body = order.to_dict() if isinstance(order, CreateSlayOrderInput) else dict(order)
+        return PublicOrder.from_dict(self._request("POST", "/orders/slay", body))
 
     def get_order(self, order_id: str) -> PublicOrder:
         """``GET /orders/{id}`` — получить свой заказ по id."""

@@ -11,4 +11,5 @@ enum ServiceType: string
     case Chat = 'Chat';
     case Viewer = 'Viewer';
     case Comment = 'Comment';
+    case Slay = 'Slay';
 }

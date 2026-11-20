@@ -4,6 +4,7 @@ import type {
   ApiErrorEnvelope,
   CreateChatOrderInput,
   CreateCommentOrderInput,
+  CreateSlayOrderInput,
   PublicBalance,
   PublicOrder,
   PublicServiceList,
@@ -83,6 +84,14 @@ export class ShopStreamClient {
    */
   createCommentOrder(input: CreateCommentOrderInput): Promise<PublicOrder> {
     return this.request<PublicOrder>('POST', '/orders/comments', input);
+  }
+
+  /**
+   * `POST /orders/slay` — создать заказ «Премия SLAY»: выбор номинации, участника и кол-ва голосов.
+   * Сумма считается сервером по тарифу.
+   */
+  createSlayOrder(input: CreateSlayOrderInput): Promise<PublicOrder> {
+    return this.request<PublicOrder>('POST', '/orders/slay', input);
   }
 
   /** `GET /orders/{id}` — получить свой заказ по id. */

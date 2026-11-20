@@ -10,9 +10,10 @@ const (
 	PlatformWtv      Platform = "Wtv"
 	PlatformVkplay   Platform = "Vkplay"
 	PlatformTelegram Platform = "Telegram"
+	PlatformSlay     Platform = "Slay"
 )
 
-// ServiceType — тип услуги. В публичном POST /orders доступен только Chat.
+// ServiceType — тип услуги.
 type ServiceType string
 
 const (
@@ -20,6 +21,7 @@ const (
 	ServiceTypeChat    ServiceType = "Chat"
 	ServiceTypeViewer  ServiceType = "Viewer"
 	ServiceTypeComment ServiceType = "Comment"
+	ServiceTypeSlay    ServiceType = "Slay"
 )
 
 // OrderStatus — статус заказа.
@@ -43,6 +45,14 @@ type CommentSubscription struct {
 	Price         float64 `json:"price"`         // со всеми скидками владельца ключа, ₽
 }
 
+// PublicSlayNomination — номинация премии SLAY из каталога.
+type PublicSlayNomination struct {
+	ID         string   `json:"id"`
+	Title      string   `json:"title"`
+	Category   string   `json:"category"`
+	Contenders []string `json:"contenders"`
+}
+
 // ServiceLevel — доплата к итогу заказа за уровень (1, 2, 3); у уровня 1 доплаты нет.
 type ServiceLevel struct {
 	Level     int     `json:"level"`
@@ -59,6 +69,11 @@ type PublicService struct {
 	Levels   []ServiceLevel         `json:"levels"` // только у Chat
 	// Subscriptions — только у Comment: цены подписок (только для вывода).
 	Subscriptions []CommentSubscription `json:"subscriptions"`
+	// Только у Slay:
+	MinVotes    *int                   `json:"minVotes,omitempty"`
+	MaxVotes    *int                   `json:"maxVotes,omitempty"`
+	EndsAt      *string                `json:"endsAt,omitempty"`
+	Nominations []PublicSlayNomination `json:"nominations,omitempty"`
 }
 
 // PublicServiceList — ответ GET /services.
@@ -92,6 +107,17 @@ type CreateCommentOrderInput struct {
 	ChannelURL *string `json:"channelUrl,omitempty"` // канал запланированного поста
 	StartAt    *string `json:"startAt,omitempty"`    // ISO 8601 с зоной: Z или смещение
 	Comment    *string `json:"comment,omitempty"`    // до 1000 символов
+}
+
+// CreateSlayOrderInput — тело POST /orders/slay (заказ «Премия SLAY»).
+//
+// Выбор номинации, участника (если у номинации есть претенденты) и количества голосов.
+// Сумму считает сервер.
+type CreateSlayOrderInput struct {
+	NominationID string  `json:"nominationId"`
+	Votes        int     `json:"votes"`
+	Contender    *string `json:"contender,omitempty"`
+	Category     *string `json:"category,omitempty"` // "streamers" или "nominations"
 }
 
 // CreateChatOrderInput — тело POST /orders.
